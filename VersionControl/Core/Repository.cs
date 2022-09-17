@@ -14,12 +14,12 @@ public interface IRepository
 
 internal class Repository : IRepository
 {
-    private readonly Status _status;
-    private readonly CommitBuilder _commitBuilder;
-    private readonly CommitDetails _commitDetails;
-    private readonly CommitFinder _commitFinder;
+    private readonly IStatus _status;
+    private readonly ICommitBuilder _commitBuilder;
+    private readonly ICommitDetails _commitDetails;
+    private readonly ICommitFinder _commitFinder;
 
-    public Repository(Status status, CommitBuilder commitBuilder, CommitDetails commitDetails, CommitFinder commitFinder)
+    public Repository(IStatus status, ICommitBuilder commitBuilder, ICommitDetails commitDetails, ICommitFinder commitFinder)
     {
         _status = status;
         _commitBuilder = commitBuilder;

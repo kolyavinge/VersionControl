@@ -5,7 +5,12 @@ using VersionControl.Infrastructure;
 
 namespace VersionControl.Core;
 
-internal class CommitBuilder
+internal interface ICommitBuilder
+{
+    CommitResult MakeCommit(string comment, IReadOnlyCollection<VersionedFile> files);
+}
+
+internal class CommitBuilder : ICommitBuilder
 {
     private readonly IDataRepository _dataRepository;
     private readonly ISettings _settings;

@@ -7,9 +7,5 @@ internal interface IDateTimeProvider
 
 internal class DateTimeProvider : IDateTimeProvider
 {
-    public static readonly DateTimeProvider Instance = new();
-
     public DateTime UtcNow => DateTime.UtcNow;
-
-    private DateTimeProvider() { }
 }

@@ -4,7 +4,12 @@ using VersionControl.Data;
 
 namespace VersionControl.Core;
 
-internal class CommitFinder
+internal interface ICommitFinder
+{
+    IReadOnlyCollection<Commit> FindCommits(FindCommitsFilter filter);
+}
+
+internal class CommitFinder : ICommitFinder
 {
     private readonly IDataRepository _dataRepository;
 

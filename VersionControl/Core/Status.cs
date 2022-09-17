@@ -5,7 +5,12 @@ using VersionControl.Infrastructure;
 
 namespace VersionControl.Core;
 
-internal class Status
+internal interface IStatus
+{
+    IReadOnlyCollection<VersionedFile> GetStatus();
+}
+
+internal class Status : IStatus
 {
     private readonly IPathHolder _pathHolder;
     private readonly IDataRepository _dataRepository;
@@ -24,27 +29,27 @@ internal class Status
     {
         var lastCommit = _dataRepository.GetLastCommit();
         var lastCommitDate = lastCommit?.CreatedUtc.ToFileTimeUtc() ?? 0;
-        var lastCommitFiles = _dataRepository.GetLastPathFiles().ToDictionary(k => k.UniqueId, v => v.Path);
+        var filePathes = _dataRepository.GetLastPathFiles().ToDictionary(k => k.UniqueId, v => v.Path);
         var projectFilePathes = _fileSystem.GetFilesRecursively(_pathHolder.ProjectPath).ToList();
         projectFilePathes.RemoveAll(x => x.StartsWith(_pathHolder.RepositoryPath, StringComparison.OrdinalIgnoreCase)); // ignore repository files
         var projectFiles = projectFilePathes.Select(_fileSystem.GetFileInformation).ToList();
         var result = new List<VersionedFile>();
-        CheckAddedAndModified(projectFiles, lastCommitDate, lastCommitFiles, result);
-        CheckDeleted(projectFiles, lastCommitFiles, result);
+        CheckAddedAndModified(projectFiles, lastCommitDate, filePathes, result);
+        CheckDeleted(projectFiles, filePathes, result);
 
         return result;
     }
 
     private void CheckAddedAndModified(
-        IEnumerable<FileInformation> projectFiles, long lastCommitDate, Dictionary<ulong, string> lastCommitFiles, List<VersionedFile> versionedFiles)
+        IEnumerable<FileInformation> projectFiles, long lastCommitDate, Dictionary<ulong, string> filePathes, List<VersionedFile> versionedFiles)
     {
         foreach (var projectFile in projectFiles)
         {
-            if (lastCommitFiles.ContainsKey(projectFile.UniqueId))
+            if (filePathes.ContainsKey(projectFile.UniqueId))
             {
                 var projectFileRelative = _pathResolver.FullPathToRelative(projectFile.Path);
                 var isModified = projectFile.ModifiedUtc > lastCommitDate;
-                var isReplaced = !lastCommitFiles[projectFile.UniqueId].Equals(projectFileRelative, StringComparison.OrdinalIgnoreCase);
+                var isReplaced = !filePathes[projectFile.UniqueId].Equals(projectFileRelative, StringComparison.OrdinalIgnoreCase);
                 if (isModified && isReplaced)
                 {
                     versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, FileActionKind.ModifyAndReplace));

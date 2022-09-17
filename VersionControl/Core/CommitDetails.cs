@@ -3,7 +3,14 @@ using System.Linq;
 using VersionControl.Core;
 using VersionControl.Data;
 
-internal class CommitDetails
+internal interface ICommitDetails
+{
+    IEnumerable<CommitDetail> GetCommitDetails(long commitId);
+
+    byte[] GetFileContent(uint commitDetailId, uint fileId);
+}
+
+internal class CommitDetails : ICommitDetails
 {
     private readonly IDataRepository _dataRepository;
 

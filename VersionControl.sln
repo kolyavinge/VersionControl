@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleDB", "..\SimpleDB\Sim
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SingleFileStorage", "..\SingleFileStorage\SingleFileStorage\SingleFileStorage.csproj", "{B603331F-6F67-43BB-8680-7207E0A6B90D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarterApp", "StarterApp\StarterApp.csproj", "{4846842B-845D-413E-84BF-FAA9F685BC2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StarterApp", "StarterApp\StarterApp.csproj", "{4846842B-845D-413E-84BF-FAA9F685BC2A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyInjection", "..\DependencyInjection\DependencyInjection\DependencyInjection.csproj", "{7B387775-802A-4FE3-818C-A9746291C357}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{4846842B-845D-413E-84BF-FAA9F685BC2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4846842B-845D-413E-84BF-FAA9F685BC2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4846842B-845D-413E-84BF-FAA9F685BC2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B387775-802A-4FE3-818C-A9746291C357}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B387775-802A-4FE3-818C-A9746291C357}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B387775-802A-4FE3-818C-A9746291C357}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B387775-802A-4FE3-818C-A9746291C357}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +54,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{4105875B-943A-4556-9025-B79128D9023F} = {18654DC6-BCB6-468D-A634-2BFCAEC4F07E}
 		{B603331F-6F67-43BB-8680-7207E0A6B90D} = {18654DC6-BCB6-468D-A634-2BFCAEC4F07E}
+		{7B387775-802A-4FE3-818C-A9746291C357} = {18654DC6-BCB6-468D-A634-2BFCAEC4F07E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {25F42A57-F637-41D7-B855-6DB7C8B2C145}

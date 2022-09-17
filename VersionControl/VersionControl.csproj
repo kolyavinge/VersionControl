@@ -11,6 +11,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\DependencyInjection\DependencyInjection\DependencyInjection.csproj" />
 	  <ProjectReference Include="..\..\SimpleDB\SimpleDB\SimpleDB.csproj" />
 	</ItemGroup>
 
