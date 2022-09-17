@@ -10,11 +10,11 @@ internal class DataRepository : IDataRepository
 {
     private readonly IDBEngine _engine;
 
-    public DataRepository(string repositoryPath)
+    public DataRepository(IPathHolder pathHolder)
     {
         var builder = DBEngineBuilder.Make();
 
-        var databaseFilePath = Path.Combine(repositoryPath, Constants.DBFileName);
+        var databaseFilePath = Path.Combine(pathHolder.RepositoryPath, Constants.DBFileName);
         builder.DatabaseFilePath(databaseFilePath);
 
         builder.Map<CommitPoco>()

@@ -1,16 +1,26 @@
-﻿using NUnit.Framework;
+﻿using Moq;
+using NUnit.Framework;
 using VersionControl.Core;
 
 namespace VersionControl.Tests.Core;
 
 internal class PathResolverTest
 {
+    private Mock<IPathHolder> _pathHolder;
+    private PathResolver _resolver;
+
+    [SetUp]
+    public void Setup()
+    {
+        _pathHolder = new Mock<IPathHolder>();
+        _pathHolder.SetupGet(x => x.ProjectPath).Returns("C:\\project");
+        _resolver = new PathResolver(_pathHolder.Object);
+    }
+
     [Test]
     public void FullPathToRelative_NoLastSlash()
     {
-        var resolver = new PathResolver("C:\\project");
-
-        var result = resolver.FullPathToRelative("C:\\project\\file");
+        var result = _resolver.FullPathToRelative("C:\\project\\file");
 
         Assert.That(result, Is.EqualTo("file"));
     }
@@ -18,9 +28,7 @@ internal class PathResolverTest
     [Test]
     public void FullPathToRelative_WithLastSlash()
     {
-        var resolver = new PathResolver("C:\\project\\");
-
-        var result = resolver.FullPathToRelative("C:\\project\\file");
+        var result = _resolver.FullPathToRelative("C:\\project\\file");
 
         Assert.That(result, Is.EqualTo("file"));
     }
@@ -28,9 +36,7 @@ internal class PathResolverTest
     [Test]
     public void RelativePathToFull_NoLastSlash()
     {
-        var resolver = new PathResolver("C:\\project");
-
-        var result = resolver.RelativePathToFull("file");
+        var result = _resolver.RelativePathToFull("file");
 
         Assert.That(result, Is.EqualTo("C:\\project\\file"));
     }
@@ -38,9 +44,7 @@ internal class PathResolverTest
     [Test]
     public void RelativePathToFull_WithLastSlash()
     {
-        var resolver = new PathResolver("C:\\project\\");
-
-        var result = resolver.RelativePathToFull("file");
+        var result = _resolver.RelativePathToFull("file");
 
         Assert.That(result, Is.EqualTo("C:\\project\\file"));
     }

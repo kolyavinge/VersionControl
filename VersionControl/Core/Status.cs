@@ -7,16 +7,14 @@ namespace VersionControl.Core;
 
 internal class Status
 {
-    private readonly string _projectPath;
-    private readonly string _repositoryPath;
+    private readonly IPathHolder _pathHolder;
     private readonly IDataRepository _dataRepository;
     private readonly IPathResolver _pathResolver;
     private readonly IFileSystem _fileSystem;
 
-    public Status(string projectPath, string repositoryPath, IDataRepository dataRepository, IPathResolver pathResolver, IFileSystem fileSystem)
+    public Status(IPathHolder pathHolder, IDataRepository dataRepository, IPathResolver pathResolver, IFileSystem fileSystem)
     {
-        _projectPath = projectPath;
-        _repositoryPath = repositoryPath;
+        _pathHolder = pathHolder;
         _dataRepository = dataRepository;
         _pathResolver = pathResolver;
         _fileSystem = fileSystem;
@@ -27,8 +25,8 @@ internal class Status
         var lastCommit = _dataRepository.GetLastCommit();
         var lastCommitDate = lastCommit?.CreatedUtc.ToFileTimeUtc() ?? 0;
         var lastCommitFiles = _dataRepository.GetLastPathFiles().ToDictionary(k => k.UniqueId, v => v.Path);
-        var projectFilePathes = _fileSystem.GetFilesRecursively(_projectPath).ToList();
-        projectFilePathes.RemoveAll(x => x.StartsWith(_repositoryPath, StringComparison.OrdinalIgnoreCase)); // ignore repository files
+        var projectFilePathes = _fileSystem.GetFilesRecursively(_pathHolder.ProjectPath).ToList();
+        projectFilePathes.RemoveAll(x => x.StartsWith(_pathHolder.RepositoryPath, StringComparison.OrdinalIgnoreCase)); // ignore repository files
         var projectFiles = projectFilePathes.Select(_fileSystem.GetFileInformation).ToList();
         var result = new List<VersionedFile>();
         CheckAddedAndModified(projectFiles, lastCommitDate, lastCommitFiles, result);

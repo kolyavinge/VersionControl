@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Moq;
 using NUnit.Framework;
 using VersionControl.Core;
 using VersionControl.Data;
@@ -11,6 +12,7 @@ namespace VersionControl.Tests.Data;
 internal class DataRepositoryIntegration
 {
     private string _repositoryPath;
+    private Mock<IPathHolder> _pathHolder;
     private DataRepository _dataRepository;
 
     [SetUp]
@@ -19,7 +21,9 @@ internal class DataRepositoryIntegration
         _repositoryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestDatabase");
         if (Directory.Exists(_repositoryPath)) Directory.Delete(_repositoryPath, true);
         Directory.CreateDirectory(_repositoryPath);
-        _dataRepository = new DataRepository(_repositoryPath);
+        _pathHolder = new Mock<IPathHolder>();
+        _pathHolder.SetupGet(x => x.RepositoryPath).Returns(_repositoryPath);
+        _dataRepository = new DataRepository(_pathHolder.Object);
     }
 
     [Test]

@@ -8,7 +8,7 @@ namespace VersionControl.Tests.Core;
 
 internal class SettingsTest
 {
-    private string _repositoryPath;
+    private Mock<IPathHolder> _pathHolder;
     private Mock<ISerializer> _serializer;
     private Mock<IFileSystem> _fileSystem;
     private Mock<IWindowsEnvironment> _windowsEnvironment;
@@ -17,7 +17,8 @@ internal class SettingsTest
     [SetUp]
     public void Setup()
     {
-        _repositoryPath = "repository path";
+        _pathHolder = new Mock<IPathHolder>();
+        _pathHolder.SetupGet(x => x.RepositoryPath).Returns("repository path");
         _serializer = new Mock<ISerializer>();
         _fileSystem = new Mock<IFileSystem>();
         _windowsEnvironment = new Mock<IWindowsEnvironment>();
@@ -34,7 +35,7 @@ internal class SettingsTest
         };
         _serializer.Setup(x => x.Serialize(content)).Returns("serialized content");
 
-        _settings = new Settings(_repositoryPath, _serializer.Object, _fileSystem.Object, _windowsEnvironment.Object);
+        _settings = new Settings(_pathHolder.Object, _serializer.Object, _fileSystem.Object, _windowsEnvironment.Object);
 
         Assert.That(_settings.Author, Is.EqualTo("user name"));
         _fileSystem.Verify(x => x.WriteFileText("repository path\\settings", "serialized content", Encoding.UTF8), Times.Once());
@@ -51,7 +52,7 @@ internal class SettingsTest
         };
         _serializer.Setup(x => x.Deserialize<SettingsContent>("serialized content")).Returns(content);
 
-        _settings = new Settings(_repositoryPath, _serializer.Object, _fileSystem.Object, _windowsEnvironment.Object);
+        _settings = new Settings(_pathHolder.Object, _serializer.Object, _fileSystem.Object, _windowsEnvironment.Object);
 
         Assert.That(_settings.Author, Is.EqualTo("user name"));
     }

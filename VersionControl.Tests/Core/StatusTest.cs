@@ -13,7 +13,7 @@ public class StatusTest
     private DateTime _created;
     private long _createdBinary;
     private string _projectPath;
-    private string _repositoryPath;
+    private Mock<IPathHolder> _pathHolder;
     private Mock<IDataRepository> _dataRepository;
     private Mock<IPathResolver> _pathResolver;
     private Mock<IFileSystem> _fileSystem;
@@ -25,11 +25,13 @@ public class StatusTest
         _created = new DateTime(2000, 1, 1);
         _createdBinary = _created.ToFileTimeUtc();
         _projectPath = "c:\\";
-        _repositoryPath = "c:\\.vc";
+        _pathHolder = new Mock<IPathHolder>();
+        _pathHolder.SetupGet(x => x.ProjectPath).Returns(_projectPath);
+        _pathHolder.SetupGet(x => x.RepositoryPath).Returns("c:\\.vc");
         _dataRepository = new Mock<IDataRepository>();
         _pathResolver = new Mock<IPathResolver>();
         _fileSystem = new Mock<IFileSystem>();
-        _status = new Status(_projectPath, _repositoryPath, _dataRepository.Object, _pathResolver.Object, _fileSystem.Object);
+        _status = new Status(_pathHolder.Object, _dataRepository.Object, _pathResolver.Object, _fileSystem.Object);
     }
 
     [Test]

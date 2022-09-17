@@ -14,11 +14,11 @@ internal class PathResolver : IPathResolver
     private readonly string _projectPath;
     private readonly int _projectPathLength;
 
-    public PathResolver(string projectPath)
+    public PathResolver(IPathHolder pathHolder)
     {
-        _projectPath = projectPath;
-        _projectPathLength = projectPath.Length;
-        if (projectPath.Last() != '\\') _projectPathLength++;
+        _projectPath = pathHolder.ProjectPath;
+        _projectPathLength = _projectPath.Length;
+        if (_projectPath.Last() != '\\') _projectPathLength++;
     }
 
     public string FullPathToRelative(string fullPath)

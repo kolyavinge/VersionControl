@@ -18,9 +18,9 @@ internal class Settings : ISettings
 
     public string Author { get; private set; } = "";
 
-    public Settings(string repositoryPath, ISerializer serializer, IFileSystem fileSystem, IWindowsEnvironment windowsEnvironment)
+    public Settings(IPathHolder pathHolder, ISerializer serializer, IFileSystem fileSystem, IWindowsEnvironment windowsEnvironment)
     {
-        _settingFileFullPath = Path.Combine(repositoryPath, Constants.SettingFileName);
+        _settingFileFullPath = Path.Combine(pathHolder.RepositoryPath, Constants.SettingFileName);
         _serializer = serializer;
         _fileSystem = fileSystem;
         _windowsEnvironment = windowsEnvironment;
