@@ -8,7 +8,7 @@ public static class RepositoryFactory
 {
     public static IRepository OpenRepository(string projectPath)
     {
-        var repositoryPath = Path.Combine(projectPath, Repository.FolderName);
+        var repositoryPath = Path.Combine(projectPath, Constants.RepositoryFolderName);
         var fileSystem = new FileSystem();
         fileSystem.CreateHiddenFolderIfNotExist(repositoryPath);
         var serializer = new Serializer();

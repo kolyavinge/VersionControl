@@ -11,8 +11,6 @@ internal interface ISettings
 
 internal class Settings : ISettings
 {
-    private const string _settingFileName = "settings";
-
     private readonly string _settingFileFullPath;
     private readonly ISerializer _serializer;
     private readonly IFileSystem _fileSystem;
@@ -22,7 +20,7 @@ internal class Settings : ISettings
 
     public Settings(string repositoryPath, ISerializer serializer, IFileSystem fileSystem, IWindowsEnvironment windowsEnvironment)
     {
-        _settingFileFullPath = Path.Combine(repositoryPath, _settingFileName);
+        _settingFileFullPath = Path.Combine(repositoryPath, Constants.SettingFileName);
         _serializer = serializer;
         _fileSystem = fileSystem;
         _windowsEnvironment = windowsEnvironment;

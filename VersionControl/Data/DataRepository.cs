@@ -8,15 +8,13 @@ namespace VersionControl.Data;
 
 internal class DataRepository : IDataRepository
 {
-    private static readonly string _dbFileName = "data";
-
     private readonly IDBEngine _engine;
 
     public DataRepository(string repositoryPath)
     {
         var builder = DBEngineBuilder.Make();
 
-        var databaseFilePath = Path.Combine(repositoryPath, _dbFileName);
+        var databaseFilePath = Path.Combine(repositoryPath, Constants.DBFileName);
         builder.DatabaseFilePath(databaseFilePath);
 
         builder.Map<CommitPoco>()

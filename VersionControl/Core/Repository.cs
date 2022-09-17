@@ -14,8 +14,6 @@ public interface IRepository
 
 internal class Repository : IRepository
 {
-    public static readonly string FolderName = ".vc";
-
     private readonly Status _status;
     private readonly CommitBuilder _commitBuilder;
     private readonly CommitDetails _commitDetails;
