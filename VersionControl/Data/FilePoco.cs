@@ -1,6 +1,6 @@
 ﻿namespace VersionControl.Data;
 
-internal class VersionedFilePoco
+internal class FilePoco
 {
     public uint Id { get; set; }
 
@@ -8,7 +8,7 @@ internal class VersionedFilePoco
 
     public override bool Equals(object? obj)
     {
-        return obj is VersionedFilePoco poco &&
+        return obj is FilePoco poco &&
                Id == poco.Id &&
                UniqueFileId == poco.UniqueFileId;
     }

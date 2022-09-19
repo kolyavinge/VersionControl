@@ -15,13 +15,20 @@ internal class Status : IStatus
     private readonly IPathHolder _pathHolder;
     private readonly IDataRepository _dataRepository;
     private readonly IPathResolver _pathResolver;
+    private readonly IFileComparator _fileComparator;
     private readonly IFileSystem _fileSystem;
 
-    public Status(IPathHolder pathHolder, IDataRepository dataRepository, IPathResolver pathResolver, IFileSystem fileSystem)
+    public Status(
+        IPathHolder pathHolder,
+        IDataRepository dataRepository,
+        IPathResolver pathResolver,
+        IFileComparator fileComparator,
+        IFileSystem fileSystem)
     {
         _pathHolder = pathHolder;
         _dataRepository = dataRepository;
         _pathResolver = pathResolver;
+        _fileComparator = fileComparator;
         _fileSystem = fileSystem;
     }
 
@@ -29,56 +36,73 @@ internal class Status : IStatus
     {
         var lastCommit = _dataRepository.GetLastCommit();
         var lastCommitDate = lastCommit?.CreatedUtc.ToFileTimeUtc() ?? 0;
-        var filePathes = _dataRepository.GetLastPathFiles().ToDictionary(k => k.UniqueId, v => v.Path);
+        var actualFilesInfo = _dataRepository.GetActualFileInfo().ToDictionary(k => k.UniqueId, v => v);
         var projectFilePathes = _fileSystem.GetFilesRecursively(_pathHolder.ProjectPath).ToList();
         projectFilePathes.RemoveAll(x => x.StartsWith(_pathHolder.RepositoryPath, StringComparison.OrdinalIgnoreCase)); // ignore repository files
         var projectFiles = projectFilePathes.Select(_fileSystem.GetFileInformation).ToList();
         var result = new List<VersionedFile>();
-        CheckAddedAndModified(projectFiles, lastCommitDate, filePathes, result);
-        CheckDeleted(projectFiles, filePathes, result);
+        CheckAddedAndModified(projectFiles, lastCommitDate, actualFilesInfo, result);
+        CheckDeleted(projectFiles, actualFilesInfo, result);
 
         return result;
     }
 
     private void CheckAddedAndModified(
-        IEnumerable<FileInformation> projectFiles, long lastCommitDate, Dictionary<ulong, string> filePathes, List<VersionedFile> versionedFiles)
+        IEnumerable<FileInformation> projectFiles,
+        long lastCommitDate,
+        Dictionary<ulong, ActualFileInfoPoco> actualFilesInfo,
+        List<VersionedFile> versionedFiles)
     {
         foreach (var projectFile in projectFiles)
         {
-            if (filePathes.ContainsKey(projectFile.UniqueId))
+            if (actualFilesInfo.ContainsKey(projectFile.UniqueId))
             {
-                var projectFileRelative = _pathResolver.FullPathToRelative(projectFile.Path);
-                var isModified = projectFile.ModifiedUtc > lastCommitDate;
-                var isReplaced = !filePathes[projectFile.UniqueId].Equals(projectFileRelative, StringComparison.OrdinalIgnoreCase);
+                var actualFileInfo = actualFilesInfo[projectFile.UniqueId];
+                var projectFileRelativePath = _pathResolver.FullPathToRelative(projectFile.Path);
+                var isModified = IsModified(projectFile, lastCommitDate, actualFileInfo);
+                var isReplaced = !actualFileInfo.Path.Equals(projectFileRelativePath, StringComparison.OrdinalIgnoreCase);
                 if (isModified && isReplaced)
                 {
-                    versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, FileActionKind.ModifyAndReplace));
+                    versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, projectFile.Size, FileActionKind.ModifyAndReplace));
                 }
                 else if (isModified)
                 {
-                    versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, FileActionKind.Modify));
+                    versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, projectFile.Size, FileActionKind.Modify));
                 }
                 else if (isReplaced)
                 {
-                    versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, FileActionKind.Replace));
+                    versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, projectFile.Size, FileActionKind.Replace));
                 }
             }
             else
             {
-                versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, FileActionKind.Add));
+                versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, projectFile.Size, FileActionKind.Add));
             }
         }
     }
 
-    private void CheckDeleted(IEnumerable<FileInformation> projectFiles, Dictionary<ulong, string> lastCommitFiles, List<VersionedFile> versionedFiles)
+    private bool IsModified(FileInformation projectFile, long lastCommitDate, ActualFileInfoPoco actualFileInfo)
+    {
+        return
+            projectFile.ModifiedUtc > lastCommitDate &&
+            (projectFile.Size != actualFileInfo.Size || !AreFilesEqual(projectFile, actualFileInfo));
+    }
+
+    private bool AreFilesEqual(FileInformation projectFile, ActualFileInfoPoco actualFileInfo)
+    {
+        var actualFileContent = _dataRepository.GetActualFileContent(actualFileInfo.FileId);
+        return _fileComparator.AreEqual(actualFileContent, projectFile.Path);
+    }
+
+    private void CheckDeleted(IEnumerable<FileInformation> projectFiles, Dictionary<ulong, ActualFileInfoPoco> actualFilesInfo, List<VersionedFile> versionedFiles)
     {
         var projectFilesUniqueIdSet = projectFiles.Select(x => x.UniqueId).ToHashSet();
-        foreach (var lastCommitFile in lastCommitFiles)
+        foreach (var actualFileInfo in actualFilesInfo)
         {
-            if (!projectFilesUniqueIdSet.Contains(lastCommitFile.Key))
+            if (!projectFilesUniqueIdSet.Contains(actualFileInfo.Key))
             {
-                var lastCommitFileFullPath = _pathResolver.RelativePathToFull(lastCommitFile.Value);
-                versionedFiles.Add(new(lastCommitFile.Key, lastCommitFileFullPath, FileActionKind.Delete));
+                var lastCommitFileFullPath = _pathResolver.RelativePathToFull(actualFileInfo.Value.Path);
+                versionedFiles.Add(new(actualFileInfo.Key, lastCommitFileFullPath, 0, FileActionKind.Delete));
             }
         }
     }

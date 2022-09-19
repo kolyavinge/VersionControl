@@ -5,7 +5,7 @@ namespace VersionControl.Data;
 
 internal interface IDataRepository
 {
-    VersionedFilePoco GetFileByUniqueId(ulong uniqueFileId);
+    FilePoco GetFileByUniqueId(ulong uniqueFileId);
 
     void ClearUniqueFileIdFor(uint fileId);
 
@@ -13,37 +13,35 @@ internal interface IDataRepository
 
     IReadOnlyCollection<CommitPoco> FindCommits(FindCommitsFilter filter);
 
-    IEnumerable<LastPathFilePoco> GetLastPathFiles();
+    IEnumerable<ActualFileInfoPoco> GetActualFileInfo();
 
     uint GetCommitDetailsCount();
 
     IEnumerable<CommitDetailPoco> GetCommitDetails(long commitId);
 
-    IEnumerable<AddFileActionPoco> GetAddActions(IEnumerable<uint> idCollection);
+    IEnumerable<FileContentPoco> GetFileContents(IEnumerable<uint> idCollection);
 
-    IEnumerable<ModifyFileActionPoco> GetModifyActions(IEnumerable<uint> idCollection);
+    IEnumerable<FilePathPoco> GetFilePathes(IEnumerable<uint> idCollection);
 
-    IEnumerable<ReplaceFileActionPoco> GetReplaceActions(IEnumerable<uint> idCollection);
+    FilePathPoco GetFilePathFor(uint commitDetailId, uint fileId);
 
-    CommitDetailPoco? GetLastCommitDetailForReplace(uint commitDetailId, uint fileId);
+    FileContentPoco GetFileContentFor(uint commitDetailId, uint fileId);
 
-    CommitDetailPoco? GetLastCommitDetailForModify(uint commitDetailId, uint fileId);
+    byte[] GetActualFileContent(uint fileId);
 
-    void SaveVersionedFiles(IReadOnlyCollection<VersionedFilePoco> versionedFiles);
+    void SaveFiles(IReadOnlyCollection<FilePoco> files);
 
     void SaveCommit(CommitPoco commit);
 
     void SaveCommitDetails(IReadOnlyCollection<CommitDetailPoco> commitDetails);
 
-    void SaveAddFileActions(IReadOnlyCollection<AddFileActionPoco> addFileActions);
+    void SaveFileContents(IReadOnlyCollection<FileContentPoco> fileContents);
 
-    void SaveModifyFileActions(IReadOnlyCollection<ModifyFileActionPoco> modifyFileActions);
+    void SaveFilePathes(IReadOnlyCollection<FilePathPoco> filePathes);
 
-    void SaveReplaceFileActions(IReadOnlyCollection<ReplaceFileActionPoco> replaceFileActions);
+    void SaveActualFileInfo(IReadOnlyCollection<ActualFileInfoPoco> added);
 
-    void SaveLastPathFiles(IReadOnlyCollection<LastPathFilePoco> added);
-
-    void UpdateLastPathFiles(IReadOnlyCollection<LastPathFilePoco> updated);
+    void UpdateActualFileInfo(IReadOnlyCollection<ActualFileInfoPoco> updated);
 
     void DeleteLastPathFiles(IEnumerable<ulong> deleted);
 }

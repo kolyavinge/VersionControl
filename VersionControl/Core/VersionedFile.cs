@@ -6,12 +6,15 @@ public class VersionedFile
 
     public string FullPath { get; internal set; }
 
+    public ulong FileSize { get; internal set; }
+
     public FileActionKind ActionKind { get; internal set; }
 
-    internal VersionedFile(ulong uniqueId, string fullPath, FileActionKind actionKind)
+    internal VersionedFile(ulong uniqueId, string fullPath, ulong fileSize, FileActionKind actionKind)
     {
         UniqueId = uniqueId;
         FullPath = fullPath;
+        FileSize = fileSize;
         ActionKind = actionKind;
     }
 
@@ -20,6 +23,7 @@ public class VersionedFile
         return obj is VersionedFile file &&
                UniqueId == file.UniqueId &&
                FullPath == file.FullPath &&
+               FileSize == file.FileSize &&
                ActionKind == file.ActionKind;
     }
 

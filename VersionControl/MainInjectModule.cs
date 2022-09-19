@@ -11,6 +11,7 @@ public class MainInjectModule : InjectModule
     {
         provider.Bind<IDateTimeProvider, DateTimeProvider>().ToSingleton();
         provider.Bind<IFileSystem, FileSystem>().ToSingleton();
+        provider.Bind<IFileComparator, FileComparator>().ToSingleton();
         provider.Bind<ISerializer, Serializer>().ToSingleton();
         provider.Bind<IWindowsEnvironment, WindowsEnvironment>().ToSingleton();
         provider.Bind<IDataRepository, DataRepository>().ToSingleton();

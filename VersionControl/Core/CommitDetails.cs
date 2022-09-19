@@ -24,25 +24,17 @@ internal class CommitDetails : ICommitDetails
         var commitDetails = _dataRepository.GetCommitDetails(commitId);
         var fileIdDictionary = commitDetails.ToDictionary(k => k.Id, v => v.FileId);
 
-        var addActions = _dataRepository.GetAddActions(
-            commitDetails.Where(x => x.FileActionKind is (byte)FileActionKind.Add).Select(x => x.Id));
+        var filePathes = _dataRepository.GetFilePathes(
+            commitDetails.Where(x => x.FileActionKind is (byte)FileActionKind.Add or (byte)FileActionKind.Replace or (byte)FileActionKind.ModifyAndReplace).Select(x => x.Id));
 
-        var replaceActions = _dataRepository.GetReplaceActions(
-            commitDetails.Where(x => x.FileActionKind is (byte)FileActionKind.Replace or (byte)FileActionKind.ModifyAndReplace).Select(x => x.Id));
-
-        var addActionsDictionary = addActions.ToDictionary(k => fileIdDictionary[k.Id], v => v.RelativePath);
-        var replaceActionsDictionary = replaceActions.ToDictionary(k => fileIdDictionary[k.Id], v => v.RelativePath);
+        var filePathesDictionary = filePathes.ToDictionary(k => fileIdDictionary[k.Id], v => v.RelativePath);
 
         foreach (var commitDetail in commitDetails)
         {
             var relativePath = "";
-            if (commitDetail.FileActionKind is (byte)FileActionKind.Add)
+            if (commitDetail.FileActionKind is (byte)FileActionKind.Add or (byte)FileActionKind.Replace or (byte)FileActionKind.ModifyAndReplace)
             {
-                relativePath = addActionsDictionary[commitDetail.FileId];
-            }
-            else if (commitDetail.FileActionKind is (byte)FileActionKind.Replace or (byte)FileActionKind.ModifyAndReplace)
-            {
-                relativePath = replaceActionsDictionary[commitDetail.FileId];
+                relativePath = filePathesDictionary[commitDetail.FileId];
             }
             else if (commitDetail.FileActionKind is (byte)FileActionKind.Modify or (byte)FileActionKind.Delete)
             {
@@ -55,31 +47,13 @@ internal class CommitDetails : ICommitDetails
 
     private string GetRelativeFilePath(uint commitDetailId, uint fileId)
     {
-        var commitDetailForReplace = _dataRepository.GetLastCommitDetailForReplace(commitDetailId, fileId);
-        if (commitDetailForReplace != null)
-        {
-            var replaceAction = _dataRepository.GetReplaceActions(new[] { commitDetailForReplace.Id }).First();
-            return replaceAction.RelativePath;
-        }
-        else
-        {
-            var addAction = _dataRepository.GetAddActions(new[] { fileId }).First();
-            return addAction.RelativePath;
-        }
+        var filePath = _dataRepository.GetFilePathFor(commitDetailId, fileId);
+        return filePath.RelativePath;
     }
 
     public byte[] GetFileContent(uint commitDetailId, uint fileId)
     {
-        var commitDetailForModify = _dataRepository.GetLastCommitDetailForModify(commitDetailId, fileId);
-        if (commitDetailForModify != null)
-        {
-            var modifyAction = _dataRepository.GetModifyActions(new[] { commitDetailForModify.Id }).First();
-            return modifyAction.FileContent;
-        }
-        else
-        {
-            var addAction = _dataRepository.GetAddActions(new[] { fileId }).First();
-            return addAction.FileContent;
-        }
+        var fileContent = _dataRepository.GetFileContentFor(commitDetailId, fileId);
+        return fileContent.FileContent;
     }
 }

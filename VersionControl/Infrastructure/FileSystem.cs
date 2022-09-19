@@ -8,13 +8,15 @@ internal struct FileInformation
 {
     public readonly ulong UniqueId;
     public readonly string Path;
+    public readonly ulong Size;
     public readonly long CreatedUtc;
     public readonly long ModifiedUtc;
 
-    public FileInformation(ulong uniqueId, string path, long createdUtc, long modifiedUtc)
+    public FileInformation(ulong uniqueId, string path, ulong size, long createdUtc, long modifiedUtc)
     {
         UniqueId = uniqueId;
         Path = path;
+        Size = size;
         CreatedUtc = createdUtc;
         ModifiedUtc = modifiedUtc;
     }
@@ -58,10 +60,11 @@ internal class FileSystem : IFileSystem
         using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
         WinApi.GetFileInformationByHandle(fs.SafeFileHandle, out WinApi.BY_HANDLE_FILE_INFORMATION objectFileInfo);
         var uniqueFileId = ((ulong)objectFileInfo.FileIndexHigh << 32) + objectFileInfo.FileIndexLow;
+        var size = ((ulong)objectFileInfo.FileSizeHigh << 32) + objectFileInfo.FileSizeLow;
         var createdUtc = ((long)objectFileInfo.CreationTime.dwHighDateTime << 32) + objectFileInfo.CreationTime.dwLowDateTime;
         var modifiedUtc = ((long)objectFileInfo.LastWriteTime.dwHighDateTime << 32) + objectFileInfo.LastWriteTime.dwLowDateTime;
 
-        return new(uniqueFileId, filePath, createdUtc, modifiedUtc);
+        return new(uniqueFileId, filePath, size, createdUtc, modifiedUtc);
     }
 
     public void CreateHiddenFolderIfNotExist(string path)

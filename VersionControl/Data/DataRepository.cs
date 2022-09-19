@@ -23,9 +23,11 @@ internal class DataRepository : IDataRepository
             .Field(2, x => x.Comment)
             .Field(3, x => x.CreatedUtc);
 
-        builder.Map<LastPathFilePoco>()
+        builder.Map<ActualFileInfoPoco>()
             .PrimaryKey(x => x.UniqueId)
-            .Field(1, x => x.Path);
+            .Field(1, x => x.FileId)
+            .Field(2, x => x.Path)
+            .Field(3, x => x.Size);
 
         builder.Map<CommitDetailPoco>()
             .PrimaryKey(x => x.Id)
@@ -33,35 +35,32 @@ internal class DataRepository : IDataRepository
             .Field(2, x => x.FileId)
             .Field(3, x => x.FileActionKind);
 
-        builder.Map<AddFileActionPoco>()
+        builder.Map<FileContentPoco>()
             .PrimaryKey(x => x.Id)
-            .Field(1, x => x.RelativePath)
+            .Field(1, x => x.FileId)
             .Field(2, x => x.FileContent, new() { Compressed = true });
 
-        builder.Map<ModifyFileActionPoco>()
+        builder.Map<FilePathPoco>()
             .PrimaryKey(x => x.Id)
-            .Field(1, x => x.FileContent, new() { Compressed = true });
+            .Field(1, x => x.FileId)
+            .Field(2, x => x.RelativePath);
 
-        builder.Map<ReplaceFileActionPoco>()
-            .PrimaryKey(x => x.Id)
-            .Field(1, x => x.RelativePath);
-
-        builder.Map<VersionedFilePoco>()
+        builder.Map<FilePoco>()
             .PrimaryKey(x => x.Id)
             .Field(1, x => x.UniqueFileId);
 
         _engine = builder.BuildEngine();
     }
 
-    public VersionedFilePoco GetFileByUniqueId(ulong uniqueFileId)
+    public FilePoco GetFileByUniqueId(ulong uniqueFileId)
     {
-        return _engine.GetCollection<VersionedFilePoco>().Query()
+        return _engine.GetCollection<FilePoco>().Query()
             .Where(x => x.UniqueFileId == uniqueFileId).ToList().First();
     }
 
     public void ClearUniqueFileIdFor(uint fileId)
     {
-        _engine.GetCollection<VersionedFilePoco>().Query()
+        _engine.GetCollection<FilePoco>().Query()
             .Update(x => new() { UniqueFileId = 0 }, x => x.Id == fileId);
     }
 
@@ -95,9 +94,9 @@ internal class DataRepository : IDataRepository
         return result;
     }
 
-    public IEnumerable<LastPathFilePoco> GetLastPathFiles()
+    public IEnumerable<ActualFileInfoPoco> GetActualFileInfo()
     {
-        return _engine.GetCollection<LastPathFilePoco>().GetAll();
+        return _engine.GetCollection<ActualFileInfoPoco>().GetAll();
     }
 
     public uint GetCommitDetailsCount()
@@ -112,50 +111,49 @@ internal class DataRepository : IDataRepository
             .ToList();
     }
 
-    public IEnumerable<AddFileActionPoco> GetAddActions(IEnumerable<uint> idCollection)
+    public IEnumerable<FileContentPoco> GetFileContents(IEnumerable<uint> idCollection)
     {
-        return _engine.GetCollection<AddFileActionPoco>().GetRange(idCollection.Cast<object>().ToList());
+        return _engine.GetCollection<FileContentPoco>().GetRange(idCollection.Cast<object>().ToList());
     }
 
-    public IEnumerable<ModifyFileActionPoco> GetModifyActions(IEnumerable<uint> idCollection)
+    public IEnumerable<FilePathPoco> GetFilePathes(IEnumerable<uint> idCollection)
     {
-        return _engine.GetCollection<ModifyFileActionPoco>().GetRange(idCollection.Cast<object>().ToList());
+        return _engine.GetCollection<FilePathPoco>().GetRange(idCollection.Cast<object>().ToList());
     }
 
-    public IEnumerable<ReplaceFileActionPoco> GetReplaceActions(IEnumerable<uint> idCollection)
+    public FilePathPoco GetFilePathFor(uint commitDetailId, uint fileId)
     {
-        return _engine.GetCollection<ReplaceFileActionPoco>().GetRange(idCollection.Cast<object>().ToList());
-    }
-
-    public CommitDetailPoco? GetLastCommitDetailForReplace(uint commitDetailId, uint fileId)
-    {
-        return _engine.GetCollection<CommitDetailPoco>().Query()
-            .Where(x =>
-                x.Id <= commitDetailId &&
-                x.FileId == fileId &&
-                (x.FileActionKind == (byte)FileActionKind.Replace || x.FileActionKind == (byte)FileActionKind.ModifyAndReplace))
+        return _engine.GetCollection<FilePathPoco>().Query()
+            .Where(x => x.Id <= commitDetailId && x.FileId == fileId)
             .OrderBy(x => x.Id, SortDirection.Desc)
             .Limit(1)
             .ToList()
-            .FirstOrDefault();
+            .First();
     }
 
-    public CommitDetailPoco? GetLastCommitDetailForModify(uint commitDetailId, uint fileId)
+    public FileContentPoco GetFileContentFor(uint commitDetailId, uint fileId)
     {
-        return _engine.GetCollection<CommitDetailPoco>().Query()
-            .Where(x =>
-                x.Id <= commitDetailId &&
-                x.FileId == fileId &&
-                (x.FileActionKind == (byte)FileActionKind.Modify || x.FileActionKind == (byte)FileActionKind.ModifyAndReplace))
+        return _engine.GetCollection<FileContentPoco>().Query()
+            .Where(x => x.Id <= commitDetailId && x.FileId == fileId)
             .OrderBy(x => x.Id, SortDirection.Desc)
             .Limit(1)
             .ToList()
-            .FirstOrDefault();
+            .First();
     }
 
-    public void SaveVersionedFiles(IReadOnlyCollection<VersionedFilePoco> versionedFiles)
+    public byte[] GetActualFileContent(uint fileId)
     {
-        _engine.GetCollection<VersionedFilePoco>().InsertRange(versionedFiles);
+        return _engine.GetCollection<FileContentPoco>().Query()
+            .Where(x => x.FileId == fileId)
+            .OrderBy(x => x.Id, SortDirection.Desc)
+            .Limit(1)
+            .ToList()
+            .First().FileContent;
+    }
+
+    public void SaveFiles(IReadOnlyCollection<FilePoco> files)
+    {
+        _engine.GetCollection<FilePoco>().InsertRange(files);
     }
 
     public void SaveCommit(CommitPoco commit)
@@ -168,33 +166,28 @@ internal class DataRepository : IDataRepository
         _engine.GetCollection<CommitDetailPoco>().InsertRange(commitDetails);
     }
 
-    public void SaveAddFileActions(IReadOnlyCollection<AddFileActionPoco> addFileActions)
+    public void SaveFileContents(IReadOnlyCollection<FileContentPoco> fileContents)
     {
-        _engine.GetCollection<AddFileActionPoco>().InsertRange(addFileActions);
+        _engine.GetCollection<FileContentPoco>().InsertRange(fileContents);
     }
 
-    public void SaveModifyFileActions(IReadOnlyCollection<ModifyFileActionPoco> modifyFileActions)
+    public void SaveFilePathes(IReadOnlyCollection<FilePathPoco> filePathes)
     {
-        _engine.GetCollection<ModifyFileActionPoco>().InsertRange(modifyFileActions);
+        _engine.GetCollection<FilePathPoco>().InsertRange(filePathes);
     }
 
-    public void SaveReplaceFileActions(IReadOnlyCollection<ReplaceFileActionPoco> replaceFileActions)
+    public void SaveActualFileInfo(IReadOnlyCollection<ActualFileInfoPoco> added)
     {
-        _engine.GetCollection<ReplaceFileActionPoco>().InsertRange(replaceFileActions);
+        _engine.GetCollection<ActualFileInfoPoco>().InsertRange(added);
     }
 
-    public void SaveLastPathFiles(IReadOnlyCollection<LastPathFilePoco> added)
+    public void UpdateActualFileInfo(IReadOnlyCollection<ActualFileInfoPoco> updated)
     {
-        _engine.GetCollection<LastPathFilePoco>().InsertRange(added);
-    }
-
-    public void UpdateLastPathFiles(IReadOnlyCollection<LastPathFilePoco> updated)
-    {
-        _engine.GetCollection<LastPathFilePoco>().UpdateRange(updated);
+        _engine.GetCollection<ActualFileInfoPoco>().UpdateRange(updated);
     }
 
     public void DeleteLastPathFiles(IEnumerable<ulong> deleted)
     {
-        _engine.GetCollection<LastPathFilePoco>().DeleteRange(deleted.Cast<object>().ToList());
+        _engine.GetCollection<ActualFileInfoPoco>().DeleteRange(deleted.Cast<object>().ToList());
     }
 }

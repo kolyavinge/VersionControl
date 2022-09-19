@@ -4,20 +4,20 @@ namespace VersionControl;
 
 internal interface IPathHolder
 {
-	string ProjectPath { get; }
+    string ProjectPath { get; }
 
-	string RepositoryPath { get; }
+    string RepositoryPath { get; }
 }
 
 internal class PathHolder : IPathHolder
 {
-	public string ProjectPath { get; }
+    public string ProjectPath { get; }
 
-	public string RepositoryPath { get; }
+    public string RepositoryPath { get; }
 
-	public PathHolder(string projectPath)
-	{
-		ProjectPath = projectPath;
-		RepositoryPath = Path.Combine(projectPath, Constants.RepositoryFolderName);
-	}
+    public PathHolder(string projectPath)
+    {
+        ProjectPath = projectPath;
+        RepositoryPath = Path.Combine(projectPath, Constants.RepositoryFolderName);
+    }
 }

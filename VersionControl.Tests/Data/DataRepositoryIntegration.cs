@@ -29,7 +29,7 @@ internal class DataRepositoryIntegration
     [Test]
     public void GetFileByUniqueId()
     {
-        _dataRepository.SaveVersionedFiles(new VersionedFilePoco[]
+        _dataRepository.SaveFiles(new FilePoco[]
         {
             new() { Id = 1, UniqueFileId = 100 },
             new() { Id = 2, UniqueFileId = 200 },
@@ -38,13 +38,13 @@ internal class DataRepositoryIntegration
 
         var result = _dataRepository.GetFileByUniqueId(200);
 
-        Assert.That(result, Is.EqualTo(new VersionedFilePoco { Id = 2, UniqueFileId = 200 }));
+        Assert.That(result, Is.EqualTo(new FilePoco { Id = 2, UniqueFileId = 200 }));
     }
 
     [Test]
     public void ClearUniqueFileIdFor()
     {
-        _dataRepository.SaveVersionedFiles(new VersionedFilePoco[]
+        _dataRepository.SaveFiles(new FilePoco[]
         {
             new() { Id = 1, UniqueFileId = 100 },
             new() { Id = 2, UniqueFileId = 200 },
@@ -54,7 +54,7 @@ internal class DataRepositoryIntegration
         _dataRepository.ClearUniqueFileIdFor(3);
 
         var result = _dataRepository.GetFileByUniqueId(0);
-        Assert.That(result, Is.EqualTo(new VersionedFilePoco { Id = 3, UniqueFileId = 0 }));
+        Assert.That(result, Is.EqualTo(new FilePoco { Id = 3, UniqueFileId = 0 }));
     }
 
     [Test]
@@ -150,51 +150,51 @@ internal class DataRepositoryIntegration
     [Test]
     public void GetLastPathFiles_Save()
     {
-        _dataRepository.SaveLastPathFiles(new LastPathFilePoco[]
+        _dataRepository.SaveActualFileInfo(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 123, Path = "file1" },
-            new() { UniqueId = 321, Path = "file2" }
+            new() { UniqueId = 123, FileId = 1, Path = "file1", Size = 123 },
+            new() { UniqueId = 321, FileId = 2, Path = "file2", Size = 456 }
         });
 
-        var result = _dataRepository.GetLastPathFiles().ToList();
+        var result = _dataRepository.GetActualFileInfo().ToList();
 
         Assert.That(result, Has.Count.EqualTo(2));
-        Assert.That(result[0], Is.EqualTo(new LastPathFilePoco { UniqueId = 123, Path = "file1" }));
-        Assert.That(result[1], Is.EqualTo(new LastPathFilePoco { UniqueId = 321, Path = "file2" }));
+        Assert.That(result[0], Is.EqualTo(new ActualFileInfoPoco { UniqueId = 123, FileId = 1, Path = "file1", Size = 123 }));
+        Assert.That(result[1], Is.EqualTo(new ActualFileInfoPoco { UniqueId = 321, FileId = 2, Path = "file2", Size = 456 }));
     }
 
     [Test]
     public void GetLastPathFiles_Update()
     {
-        _dataRepository.SaveLastPathFiles(new LastPathFilePoco[]
+        _dataRepository.SaveActualFileInfo(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 123, Path = "file1" },
-            new() { UniqueId = 321, Path = "file2" }
+            new() { UniqueId = 123, FileId = 1, Path = "file1", Size = 123 },
+            new() { UniqueId = 321, FileId = 2, Path = "file2", Size = 456 }
         });
-        _dataRepository.UpdateLastPathFiles(new LastPathFilePoco[]
+        _dataRepository.UpdateActualFileInfo(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 123, Path = "file100" },
-            new() { UniqueId = 321, Path = "file200" }
+            new() { UniqueId = 123, FileId = 10, Path = "file100", Size = 1230 },
+            new() { UniqueId = 321, FileId = 20, Path = "file200", Size = 4560 }
         });
 
-        var result = _dataRepository.GetLastPathFiles().ToList();
+        var result = _dataRepository.GetActualFileInfo().ToList();
 
         Assert.That(result, Has.Count.EqualTo(2));
-        Assert.That(result[0], Is.EqualTo(new LastPathFilePoco { UniqueId = 123, Path = "file100" }));
-        Assert.That(result[1], Is.EqualTo(new LastPathFilePoco { UniqueId = 321, Path = "file200" }));
+        Assert.That(result[0], Is.EqualTo(new ActualFileInfoPoco { UniqueId = 123, FileId = 10, Path = "file100", Size = 1230 }));
+        Assert.That(result[1], Is.EqualTo(new ActualFileInfoPoco { UniqueId = 321, FileId = 20, Path = "file200", Size = 4560 }));
     }
 
     [Test]
     public void GetLastPathFiles_Delete()
     {
-        _dataRepository.SaveLastPathFiles(new LastPathFilePoco[]
+        _dataRepository.SaveActualFileInfo(new ActualFileInfoPoco[]
         {
             new() { UniqueId = 123, Path = "file1" },
             new() { UniqueId = 321, Path = "file2" }
         });
         _dataRepository.DeleteLastPathFiles(new ulong[] { 123, 321 });
 
-        var result = _dataRepository.GetLastPathFiles().ToList();
+        var result = _dataRepository.GetActualFileInfo().ToList();
 
         Assert.That(result, Has.Count.EqualTo(0));
     }
@@ -230,172 +230,113 @@ internal class DataRepositoryIntegration
     }
 
     [Test]
-    public void GetAddActions()
-    {
-        var content = new byte[] { 1, 2, 3 };
-        _dataRepository.SaveAddFileActions(new AddFileActionPoco[]
-        {
-            new() { Id = 123, FileContent = content, RelativePath = "file1" },
-            new() { Id = 456, FileContent = content, RelativePath = "file2" }
-        });
-
-        var result = _dataRepository.GetAddActions(new uint[] { 123, 456 }).ToList();
-
-        Assert.That(result, Has.Count.EqualTo(2));
-        Assert.That(result[0], Is.EqualTo(new AddFileActionPoco { Id = 123, FileContent = content, RelativePath = "file1" }));
-        Assert.That(result[1], Is.EqualTo(new AddFileActionPoco { Id = 456, FileContent = content, RelativePath = "file2" }));
-    }
-
-    [Test]
     public void GetModifyActions()
     {
         var content = new byte[] { 1, 2, 3 };
-        _dataRepository.SaveModifyFileActions(new ModifyFileActionPoco[]
+        _dataRepository.SaveFileContents(new FileContentPoco[]
         {
             new() { Id = 123, FileContent = content },
             new() { Id = 456, FileContent = content }
         });
 
-        var result = _dataRepository.GetModifyActions(new uint[] { 123, 456 }).ToList();
+        var result = _dataRepository.GetFileContents(new uint[] { 123, 456 }).ToList();
 
         Assert.That(result, Has.Count.EqualTo(2));
-        Assert.That(result[0], Is.EqualTo(new ModifyFileActionPoco { Id = 123, FileContent = content }));
-        Assert.That(result[1], Is.EqualTo(new ModifyFileActionPoco { Id = 456, FileContent = content }));
+        Assert.That(result[0], Is.EqualTo(new FileContentPoco { Id = 123, FileContent = content }));
+        Assert.That(result[1], Is.EqualTo(new FileContentPoco { Id = 456, FileContent = content }));
     }
 
     [Test]
     public void GetReplaceActions()
     {
-        _dataRepository.SaveReplaceFileActions(new ReplaceFileActionPoco[]
+        _dataRepository.SaveFilePathes(new FilePathPoco[]
         {
             new() { Id = 123, RelativePath = "file1" },
             new() { Id = 456, RelativePath = "file2" }
         });
 
-        var result = _dataRepository.GetReplaceActions(new uint[] { 123, 456 }).ToList();
+        var result = _dataRepository.GetFilePathes(new uint[] { 123, 456 }).ToList();
 
         Assert.That(result, Has.Count.EqualTo(2));
-        Assert.That(result[0], Is.EqualTo(new ReplaceFileActionPoco { Id = 123, RelativePath = "file1" }));
-        Assert.That(result[1], Is.EqualTo(new ReplaceFileActionPoco { Id = 456, RelativePath = "file2" }));
+        Assert.That(result[0], Is.EqualTo(new FilePathPoco { Id = 123, RelativePath = "file1" }));
+        Assert.That(result[1], Is.EqualTo(new FilePathPoco { Id = 456, RelativePath = "file2" }));
     }
 
     [Test]
-    public void GetLastCommitDetailForReplace_1()
+    public void GetFilePathFor_1()
     {
-        _dataRepository.SaveCommitDetails(new CommitDetailPoco[]
+        _dataRepository.SaveFilePathes(new FilePathPoco[]
         {
-            new() { Id = 123, FileId = 111, FileActionKind = (byte)FileActionKind.Add }
+            new() { Id = 123, FileId = 111 },
+            new() { Id = 456, FileId = 111 }
         });
 
-        var result = _dataRepository.GetLastCommitDetailForReplace(123, 111);
-
-        Assert.That(result, Is.Null);
-    }
-
-    [Test]
-    public void GetLastCommitDetailForReplace_2()
-    {
-        _dataRepository.SaveCommitDetails(new CommitDetailPoco[]
-        {
-            new() { Id = 123, FileId = 111, FileActionKind = (byte)FileActionKind.Replace },
-            new() { Id = 456, FileId = 111, FileActionKind = (byte)FileActionKind.Replace }
-        });
-
-        var result = _dataRepository.GetLastCommitDetailForReplace(456, 111);
+        var result = _dataRepository.GetFilePathFor(456, 111);
 
         Assert.That(result, !Is.Null);
         Assert.That(result.Id, Is.EqualTo(456));
     }
 
     [Test]
-    public void GetLastCommitDetailForReplace_3()
+    public void GetFilePathFor_2()
     {
-        _dataRepository.SaveCommitDetails(new CommitDetailPoco[]
+        _dataRepository.SaveFilePathes(new FilePathPoco[]
         {
-            new() { Id = 123, FileId = 111, FileActionKind = (byte)FileActionKind.Replace },
-            new() { Id = 456, FileId = 111, FileActionKind = (byte)FileActionKind.Replace },
-            new() { Id = 789, FileId = 111, FileActionKind = (byte)FileActionKind.Modify }
+            new() { Id = 123, FileId = 111 },
+            new() { Id = 456, FileId = 111 },
+            new() { Id = 789, FileId = 111 }
         });
 
-        var result = _dataRepository.GetLastCommitDetailForReplace(789, 111);
+        var result = _dataRepository.GetFilePathFor(789, 111);
+
+        Assert.That(result, !Is.Null);
+        Assert.That(result.Id, Is.EqualTo(789));
+    }
+
+    [Test]
+    public void GetFileContentFor_1()
+    {
+        _dataRepository.SaveFileContents(new FileContentPoco[]
+        {
+            new() { Id = 123, FileId = 111 },
+            new() { Id = 456, FileId = 111 }
+        });
+
+        var result = _dataRepository.GetFileContentFor(456, 111);
 
         Assert.That(result, !Is.Null);
         Assert.That(result.Id, Is.EqualTo(456));
     }
 
     [Test]
-    public void GetLastCommitDetailForReplace_4()
+    public void GetFileContentFor_2()
     {
-        _dataRepository.SaveCommitDetails(new CommitDetailPoco[]
+        _dataRepository.SaveFileContents(new FileContentPoco[]
         {
-            new() { Id = 123, FileId = 111, FileActionKind = (byte)FileActionKind.Replace },
-            new() { Id = 456, FileId = 111, FileActionKind = (byte)FileActionKind.ModifyAndReplace },
-            new() { Id = 789, FileId = 111, FileActionKind = (byte)FileActionKind.Modify }
+            new() { Id = 123, FileId = 111 },
+            new() { Id = 456, FileId = 111 },
+            new() { Id = 789, FileId = 111 }
         });
 
-        var result = _dataRepository.GetLastCommitDetailForReplace(789, 111);
+        var result = _dataRepository.GetFileContentFor(789, 111);
 
         Assert.That(result, !Is.Null);
-        Assert.That(result.Id, Is.EqualTo(456));
+        Assert.That(result.Id, Is.EqualTo(789));
     }
 
     [Test]
-    public void GetLastCommitDetailForModify_1()
+    public void GetActualFileContent()
     {
-        _dataRepository.SaveCommitDetails(new CommitDetailPoco[]
+        _dataRepository.SaveFileContents(new FileContentPoco[]
         {
-            new() { Id = 123, FileId = 111, FileActionKind = (byte)FileActionKind.Add }
+            new() { Id = 123, FileId = 111, FileContent = new byte[] { 1 } },
+            new() { Id = 456, FileId = 111, FileContent = new byte[] { 1 } },
+            new() { Id = 789, FileId = 222, FileContent = new byte[] { 1 } }
         });
 
-        var result = _dataRepository.GetLastCommitDetailForModify(123, 111);
+        var result = _dataRepository.GetActualFileContent(111);
 
-        Assert.That(result, Is.Null);
-    }
-
-    [Test]
-    public void GetLastCommitDetailForModify_2()
-    {
-        _dataRepository.SaveCommitDetails(new CommitDetailPoco[]
-        {
-            new() { Id = 123, FileId = 111, FileActionKind = (byte)FileActionKind.Modify },
-            new() { Id = 456, FileId = 111, FileActionKind = (byte)FileActionKind.Modify }
-        });
-
-        var result = _dataRepository.GetLastCommitDetailForModify(456, 111);
-
-        Assert.That(result, !Is.Null);
-        Assert.That(result.Id, Is.EqualTo(456));
-    }
-
-    [Test]
-    public void GetLastCommitDetailForModify_3()
-    {
-        _dataRepository.SaveCommitDetails(new CommitDetailPoco[]
-        {
-            new() { Id = 123, FileId = 111, FileActionKind = (byte)FileActionKind.Modify },
-            new() { Id = 456, FileId = 111, FileActionKind = (byte)FileActionKind.Modify },
-            new() { Id = 789, FileId = 111, FileActionKind = (byte)FileActionKind.Replace }
-        });
-
-        var result = _dataRepository.GetLastCommitDetailForModify(789, 111);
-
-        Assert.That(result, !Is.Null);
-        Assert.That(result.Id, Is.EqualTo(456));
-    }
-
-    [Test]
-    public void GetLastCommitDetailForModify_4()
-    {
-        _dataRepository.SaveCommitDetails(new CommitDetailPoco[]
-        {
-            new() { Id = 123, FileId = 111, FileActionKind = (byte)FileActionKind.Modify },
-            new() { Id = 456, FileId = 111, FileActionKind = (byte)FileActionKind.ModifyAndReplace },
-            new() { Id = 789, FileId = 111, FileActionKind = (byte)FileActionKind.Replace }
-        });
-
-        var result = _dataRepository.GetLastCommitDetailForModify(789, 111);
-
-        Assert.That(result, !Is.Null);
-        Assert.That(result.Id, Is.EqualTo(456));
+        Assert.That(result, Has.Length.EqualTo(1));
+        Assert.That(result[0], Is.EqualTo(1));
     }
 }

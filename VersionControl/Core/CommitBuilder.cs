@@ -45,114 +45,113 @@ internal class CommitBuilder : ICommitBuilder
             Comment = comment,
             CreatedUtc = now
         });
-        SaveCommitDetailsAndActionsPoco(commitId, files);
-        SaveLastPathFiles(files);
+        var filesId = new Dictionary<ulong, uint>();
+        SaveCommitDetailsAndActionsPoco(commitId, files, filesId);
+        SaveActualFilesInfo(files, filesId);
 
         return new CommitResult(commitId);
     }
 
-    private void SaveCommitDetailsAndActionsPoco(long commitId, IEnumerable<VersionedFile> files)
+    private void SaveCommitDetailsAndActionsPoco(long commitId, IEnumerable<VersionedFile> versionedFiles, Dictionary<ulong, uint> filesId)
     {
-        var versionedFiles = new List<VersionedFilePoco>();
+        var newFiles = new List<FilePoco>();
         var commitDetails = new List<CommitDetailPoco>();
-        var addFileActions = new List<AddFileActionPoco>();
-        var modifyFileActions = new List<ModifyFileActionPoco>();
-        var replaceFileActions = new List<ReplaceFileActionPoco>();
+        var fileContents = new List<FileContentPoco>();
+        var filePathes = new List<FilePathPoco>();
 
         var id = _dataRepository.GetCommitDetailsCount() + 1;
 
-        foreach (var file in files)
+        foreach (var versionedFile in versionedFiles)
         {
-            VersionedFilePoco dbfile;
-            if (file.ActionKind == FileActionKind.Add)
+            FilePoco file;
+            if (versionedFile.ActionKind == FileActionKind.Add)
             {
-                dbfile = new VersionedFilePoco { Id = id, UniqueFileId = file.UniqueId };
-                versionedFiles.Add(dbfile);
+                file = new FilePoco { Id = id, UniqueFileId = versionedFile.UniqueId };
+                newFiles.Add(file);
             }
             else
             {
-                dbfile = _dataRepository.GetFileByUniqueId(file.UniqueId); // make index in db
+                file = _dataRepository.GetFileByUniqueId(versionedFile.UniqueId); // make index in db
             }
+            filesId.Add(versionedFile.UniqueId, file.Id);
 
             commitDetails.Add(new CommitDetailPoco
             {
                 Id = id,
                 CommitId = commitId,
-                FileId = dbfile.Id,
-                FileActionKind = (byte)file.ActionKind,
+                FileId = file.Id,
+                FileActionKind = (byte)versionedFile.ActionKind,
             });
 
-            if (file.ActionKind == FileActionKind.Add)
+            if (versionedFile.ActionKind is FileActionKind.Add or FileActionKind.ModifyAndReplace)
             {
-                addFileActions.Add(new AddFileActionPoco
+                fileContents.Add(new FileContentPoco
                 {
                     Id = id,
-                    RelativePath = _pathResolver.FullPathToRelative(file.FullPath),
-                    FileContent = _fileSystem.ReadFileBytes(file.FullPath)
+                    FileId = file.Id,
+                    FileContent = _fileSystem.ReadFileBytes(versionedFile.FullPath)
+                });
+                filePathes.Add(new FilePathPoco
+                {
+                    Id = id,
+                    FileId = file.Id,
+                    RelativePath = _pathResolver.FullPathToRelative(versionedFile.FullPath)
                 });
             }
-            else if (file.ActionKind == FileActionKind.Modify)
+            else if (versionedFile.ActionKind is FileActionKind.Modify)
             {
-                modifyFileActions.Add(new ModifyFileActionPoco
+                fileContents.Add(new FileContentPoco
                 {
                     Id = id,
-                    FileContent = _fileSystem.ReadFileBytes(file.FullPath)
+                    FileId = file.Id,
+                    FileContent = _fileSystem.ReadFileBytes(versionedFile.FullPath)
                 });
             }
-            else if (file.ActionKind == FileActionKind.Replace)
+            else if (versionedFile.ActionKind is FileActionKind.Replace)
             {
-                replaceFileActions.Add(new ReplaceFileActionPoco
+                filePathes.Add(new FilePathPoco
                 {
                     Id = id,
-                    RelativePath = _pathResolver.FullPathToRelative(file.FullPath)
-                });
-            }
-            else if (file.ActionKind == FileActionKind.ModifyAndReplace)
-            {
-                modifyFileActions.Add(new ModifyFileActionPoco
-                {
-                    Id = id,
-                    FileContent = _fileSystem.ReadFileBytes(file.FullPath)
-                });
-                replaceFileActions.Add(new ReplaceFileActionPoco
-                {
-                    Id = id,
-                    RelativePath = _pathResolver.FullPathToRelative(file.FullPath)
+                    FileId = file.Id,
+                    RelativePath = _pathResolver.FullPathToRelative(versionedFile.FullPath)
                 });
             }
             else // Delete
             {
-                _dataRepository.ClearUniqueFileIdFor(dbfile.Id);
+                _dataRepository.ClearUniqueFileIdFor(file.Id);
             }
 
             id++;
         }
 
-        _dataRepository.SaveVersionedFiles(versionedFiles);
+        _dataRepository.SaveFiles(newFiles);
         _dataRepository.SaveCommitDetails(commitDetails);
-        _dataRepository.SaveAddFileActions(addFileActions);
-        _dataRepository.SaveModifyFileActions(modifyFileActions);
-        _dataRepository.SaveReplaceFileActions(replaceFileActions);
+        _dataRepository.SaveFileContents(fileContents);
+        _dataRepository.SaveFilePathes(filePathes);
     }
 
-    private void SaveLastPathFiles(IReadOnlyCollection<VersionedFile> files)
+    private void SaveActualFilesInfo(IReadOnlyCollection<VersionedFile> files, Dictionary<ulong, uint> filesId)
     {
-        var added = files.Where(x => x.ActionKind == FileActionKind.Add).Select(x => new LastPathFilePoco
+        var added = files.Where(x => x.ActionKind == FileActionKind.Add).Select(x => new ActualFileInfoPoco
         {
             UniqueId = x.UniqueId,
-            Path = _pathResolver.FullPathToRelative(x.FullPath)
+            FileId = filesId[x.UniqueId],
+            Path = _pathResolver.FullPathToRelative(x.FullPath),
+            Size = x.FileSize
         }).ToList();
 
-        var replaced = files.Where(x => x.ActionKind is FileActionKind.Replace or FileActionKind.ModifyAndReplace).Select(x => new LastPathFilePoco
+        var replaced = files.Where(x => x.ActionKind is FileActionKind.Replace or FileActionKind.ModifyAndReplace).Select(x => new ActualFileInfoPoco
         {
             UniqueId = x.UniqueId,
-            Path = _pathResolver.FullPathToRelative(x.FullPath)
+            FileId = filesId[x.UniqueId],
+            Path = _pathResolver.FullPathToRelative(x.FullPath),
+            Size = x.FileSize
         }).ToList();
 
         var deleted = files.Where(x => x.ActionKind == FileActionKind.Delete).Select(x => x.UniqueId).ToList();
 
-        _dataRepository.SaveLastPathFiles(added);
-        _dataRepository.UpdateLastPathFiles(replaced);
+        _dataRepository.SaveActualFileInfo(added);
+        _dataRepository.UpdateActualFileInfo(replaced);
         _dataRepository.DeleteLastPathFiles(deleted);
     }
 }
