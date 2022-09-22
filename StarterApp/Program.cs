@@ -20,7 +20,7 @@ internal class Program
         if (clearProjectRepository) ClearProjectRepository();
         if (createManyFiles) CreateManyFiles();
 
-        var repo = RepositoryFactory.OpenRepository(_projectPath);
+        var repo = VersionControlRepositoryFactory.OpenRepository(_projectPath);
 
         var versionedFiles = repo.GetStatus();
         Console.WriteLine($"versioned files count: {versionedFiles.Count}");

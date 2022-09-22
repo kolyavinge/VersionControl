@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace VersionControl.Core;
 
-public interface IRepository
+public interface IVersionControlRepository
 {
     IReadOnlyCollection<VersionedFile> GetStatus();
     CommitResult MakeCommit(string comment, IReadOnlyCollection<VersionedFile> files);
@@ -12,14 +12,14 @@ public interface IRepository
     byte[] GetFileContent(CommitDetail commitDetail);
 }
 
-internal class Repository : IRepository
+internal class VersionControlRepository : IVersionControlRepository
 {
     private readonly IStatus _status;
     private readonly ICommitBuilder _commitBuilder;
     private readonly ICommitDetails _commitDetails;
     private readonly ICommitFinder _commitFinder;
 
-    public Repository(IStatus status, ICommitBuilder commitBuilder, ICommitDetails commitDetails, ICommitFinder commitFinder)
+    public VersionControlRepository(IStatus status, ICommitBuilder commitBuilder, ICommitDetails commitDetails, ICommitFinder commitFinder)
     {
         _status = status;
         _commitBuilder = commitBuilder;

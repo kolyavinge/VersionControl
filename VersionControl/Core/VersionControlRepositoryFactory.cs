@@ -3,9 +3,17 @@ using VersionControl.Infrastructure;
 
 namespace VersionControl.Core;
 
-public static class RepositoryFactory
+public static class VersionControlRepositoryFactory
 {
-    public static IRepository OpenRepository(string projectPath)
+    public static bool IsRepositoryExist(string projectPath)
+    {
+        var pathHolder = new PathHolder(projectPath);
+        var fileSystem = new FileSystem();
+
+        return fileSystem.IsFolderExist(pathHolder.RepositoryPath);
+    }
+
+    public static IVersionControlRepository OpenRepository(string projectPath)
     {
         var container = DependencyContainerFactory.MakeLiteContainer();
         container.InitFromModules(new MainInjectModule());
@@ -15,6 +23,6 @@ public static class RepositoryFactory
 
         container.Resolve<IFileSystem>().CreateHiddenFolderIfNotExist(pathHolder.RepositoryPath);
 
-        return container.Resolve<IRepository>();
+        return container.Resolve<IVersionControlRepository>();
     }
 }

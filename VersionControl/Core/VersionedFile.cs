@@ -2,13 +2,13 @@
 
 public class VersionedFile
 {
-    internal ulong UniqueId { get; set; }
+    internal ulong UniqueId { get; }
 
-    public string FullPath { get; internal set; }
+    public string FullPath { get; }
 
-    public ulong FileSize { get; internal set; }
+    internal ulong FileSize { get; }
 
-    public FileActionKind ActionKind { get; internal set; }
+    public FileActionKind ActionKind { get; }
 
     internal VersionedFile(ulong uniqueId, string fullPath, ulong fileSize, FileActionKind actionKind)
     {

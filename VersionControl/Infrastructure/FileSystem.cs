@@ -29,6 +29,7 @@ internal interface IFileSystem
     string ReadFileText(string filePath, Encoding encoding);
     void WriteFileText(string filePath, string content, Encoding encoding);
     FileInformation GetFileInformation(string filePath);
+    bool IsFolderExist(string path);
     void CreateHiddenFolderIfNotExist(string path);
     IEnumerable<string> GetFilesRecursively(string path);
 }
@@ -65,6 +66,11 @@ internal class FileSystem : IFileSystem
         var modifiedUtc = ((long)objectFileInfo.LastWriteTime.dwHighDateTime << 32) + objectFileInfo.LastWriteTime.dwLowDateTime;
 
         return new(uniqueFileId, filePath, size, createdUtc, modifiedUtc);
+    }
+
+    public bool IsFolderExist(string path)
+    {
+        return Directory.Exists(path);
     }
 
     public void CreateHiddenFolderIfNotExist(string path)

@@ -5,7 +5,7 @@ using VersionControl.Infrastructure;
 
 namespace VersionControl;
 
-public class MainInjectModule : InjectModule
+internal class MainInjectModule : InjectModule
 {
     public override void Init(IBindingProvider provider)
     {
@@ -21,6 +21,6 @@ public class MainInjectModule : InjectModule
         provider.Bind<ICommitBuilder, CommitBuilder>().ToSingleton();
         provider.Bind<ICommitDetails, CommitDetails>().ToSingleton();
         provider.Bind<ICommitFinder, CommitFinder>().ToSingleton();
-        provider.Bind<IRepository, Repository>().ToSingleton();
+        provider.Bind<IVersionControlRepository, VersionControlRepository>().ToSingleton();
     }
 }
