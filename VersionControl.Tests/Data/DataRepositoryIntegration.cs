@@ -152,15 +152,15 @@ internal class DataRepositoryIntegration
     {
         _dataRepository.SaveActualFileInfo(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 123, FileId = 1, Path = "file1", Size = 123 },
-            new() { UniqueId = 321, FileId = 2, Path = "file2", Size = 456 }
+            new() { UniqueId = 123, FileId = 1, RelativePath = "file1", Size = 123 },
+            new() { UniqueId = 321, FileId = 2, RelativePath = "file2", Size = 456 }
         });
 
         var result = _dataRepository.GetActualFileInfo().ToList();
 
         Assert.That(result, Has.Count.EqualTo(2));
-        Assert.That(result[0], Is.EqualTo(new ActualFileInfoPoco { UniqueId = 123, FileId = 1, Path = "file1", Size = 123 }));
-        Assert.That(result[1], Is.EqualTo(new ActualFileInfoPoco { UniqueId = 321, FileId = 2, Path = "file2", Size = 456 }));
+        Assert.That(result[0], Is.EqualTo(new ActualFileInfoPoco { UniqueId = 123, FileId = 1, RelativePath = "file1", Size = 123 }));
+        Assert.That(result[1], Is.EqualTo(new ActualFileInfoPoco { UniqueId = 321, FileId = 2, RelativePath = "file2", Size = 456 }));
     }
 
     [Test]
@@ -168,20 +168,20 @@ internal class DataRepositoryIntegration
     {
         _dataRepository.SaveActualFileInfo(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 123, FileId = 1, Path = "file1", Size = 123 },
-            new() { UniqueId = 321, FileId = 2, Path = "file2", Size = 456 }
+            new() { UniqueId = 123, FileId = 1, RelativePath = "file1", Size = 123 },
+            new() { UniqueId = 321, FileId = 2, RelativePath = "file2", Size = 456 }
         });
         _dataRepository.UpdateActualFileInfo(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 123, FileId = 10, Path = "file100", Size = 1230 },
-            new() { UniqueId = 321, FileId = 20, Path = "file200", Size = 4560 }
+            new() { UniqueId = 123, FileId = 10, RelativePath = "file100", Size = 1230 },
+            new() { UniqueId = 321, FileId = 20, RelativePath = "file200", Size = 4560 }
         });
 
         var result = _dataRepository.GetActualFileInfo().ToList();
 
         Assert.That(result, Has.Count.EqualTo(2));
-        Assert.That(result[0], Is.EqualTo(new ActualFileInfoPoco { UniqueId = 123, FileId = 10, Path = "file100", Size = 1230 }));
-        Assert.That(result[1], Is.EqualTo(new ActualFileInfoPoco { UniqueId = 321, FileId = 20, Path = "file200", Size = 4560 }));
+        Assert.That(result[0], Is.EqualTo(new ActualFileInfoPoco { UniqueId = 123, FileId = 10, RelativePath = "file100", Size = 1230 }));
+        Assert.That(result[1], Is.EqualTo(new ActualFileInfoPoco { UniqueId = 321, FileId = 20, RelativePath = "file200", Size = 4560 }));
     }
 
     [Test]
@@ -189,8 +189,8 @@ internal class DataRepositoryIntegration
     {
         _dataRepository.SaveActualFileInfo(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 123, Path = "file1" },
-            new() { UniqueId = 321, Path = "file2" }
+            new() { UniqueId = 123, RelativePath = "file1" },
+            new() { UniqueId = 321, RelativePath = "file2" }
         });
         _dataRepository.DeleteLastPathFiles(new ulong[] { 123, 321 });
 

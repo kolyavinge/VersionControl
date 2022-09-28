@@ -26,7 +26,7 @@ internal class DataRepository : IDataRepository
         builder.Map<ActualFileInfoPoco>()
             .PrimaryKey(x => x.UniqueId)
             .Field(1, x => x.FileId)
-            .Field(2, x => x.Path)
+            .Field(2, x => x.RelativePath)
             .Field(3, x => x.Size);
 
         builder.Map<CommitDetailPoco>()

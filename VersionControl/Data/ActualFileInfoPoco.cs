@@ -6,7 +6,7 @@ internal class ActualFileInfoPoco
 
     public uint FileId { get; set; }
 
-    public string Path { get; set; } = "";
+    public string RelativePath { get; set; } = "";
 
     public ulong Size { get; set; }
 
@@ -15,12 +15,12 @@ internal class ActualFileInfoPoco
         return obj is ActualFileInfoPoco poco &&
                UniqueId == poco.UniqueId &&
                FileId == poco.FileId &&
-               Path == poco.Path &&
+               RelativePath == poco.RelativePath &&
                Size == poco.Size;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(UniqueId, FileId, Path, Size);
+        return HashCode.Combine(UniqueId, FileId, RelativePath, Size);
     }
 }

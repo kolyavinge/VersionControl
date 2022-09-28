@@ -136,7 +136,7 @@ internal class CommitBuilder : ICommitBuilder
         {
             UniqueId = x.UniqueId,
             FileId = filesId[x.UniqueId],
-            Path = _pathResolver.FullPathToRelative(x.FullPath),
+            RelativePath = _pathResolver.FullPathToRelative(x.FullPath),
             Size = x.FileSize
         }).ToList();
 
@@ -144,7 +144,7 @@ internal class CommitBuilder : ICommitBuilder
         {
             UniqueId = x.UniqueId,
             FileId = filesId[x.UniqueId],
-            Path = _pathResolver.FullPathToRelative(x.FullPath),
+            RelativePath = _pathResolver.FullPathToRelative(x.FullPath),
             Size = x.FileSize
         }).ToList();
 

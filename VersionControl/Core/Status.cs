@@ -55,28 +55,28 @@ internal class Status : IStatus
     {
         foreach (var projectFile in projectFiles)
         {
+            var projectFileRelativePath = _pathResolver.FullPathToRelative(projectFile.Path);
             if (actualFilesInfo.ContainsKey(projectFile.UniqueId))
             {
                 var actualFileInfo = actualFilesInfo[projectFile.UniqueId];
-                var projectFileRelativePath = _pathResolver.FullPathToRelative(projectFile.Path);
                 var isModified = IsModified(projectFile, lastCommitDate, actualFileInfo);
-                var isReplaced = !actualFileInfo.Path.Equals(projectFileRelativePath, StringComparison.OrdinalIgnoreCase);
+                var isReplaced = !actualFileInfo.RelativePath.Equals(projectFileRelativePath, StringComparison.OrdinalIgnoreCase);
                 if (isModified && isReplaced)
                 {
-                    versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, projectFile.Size, FileActionKind.ModifyAndReplace));
+                    versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, projectFileRelativePath, projectFile.Size, FileActionKind.ModifyAndReplace));
                 }
                 else if (isModified)
                 {
-                    versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, projectFile.Size, FileActionKind.Modify));
+                    versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, projectFileRelativePath, projectFile.Size, FileActionKind.Modify));
                 }
                 else if (isReplaced)
                 {
-                    versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, projectFile.Size, FileActionKind.Replace));
+                    versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, projectFileRelativePath, projectFile.Size, FileActionKind.Replace));
                 }
             }
             else
             {
-                versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, projectFile.Size, FileActionKind.Add));
+                versionedFiles.Add(new(projectFile.UniqueId, projectFile.Path, projectFileRelativePath, projectFile.Size, FileActionKind.Add));
             }
         }
     }
@@ -101,8 +101,8 @@ internal class Status : IStatus
         {
             if (!projectFilesUniqueIdSet.Contains(actualFileInfo.Key))
             {
-                var lastCommitFileFullPath = _pathResolver.RelativePathToFull(actualFileInfo.Value.Path);
-                versionedFiles.Add(new(actualFileInfo.Key, lastCommitFileFullPath, 0, FileActionKind.Delete));
+                var lastCommitFileFullPath = _pathResolver.RelativePathToFull(actualFileInfo.Value.RelativePath);
+                versionedFiles.Add(new(actualFileInfo.Key, lastCommitFileFullPath, actualFileInfo.Value.RelativePath, 0, FileActionKind.Delete));
             }
         }
     }

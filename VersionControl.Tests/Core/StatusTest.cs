@@ -59,7 +59,7 @@ public class StatusTest
 
         var result = _status.GetStatus().ToList();
 
-        Assert.That(result[0], Is.EqualTo(new VersionedFile(1, "c:\\projectFile", 128, FileActionKind.Add)));
+        Assert.That(result[0], Is.EqualTo(new VersionedFile(1, "c:\\projectFile", "projectFile", 128, FileActionKind.Add)));
         _fileComparator.Verify(x => x.AreEqual(It.IsAny<byte[]>(), It.IsAny<string>()), Times.Never());
     }
 
@@ -77,8 +77,8 @@ public class StatusTest
         var result = _status.GetStatus().ToList();
 
         Assert.That(result, Has.Count.EqualTo(2));
-        Assert.That(result[0], Is.EqualTo(new VersionedFile(1, "c:\\added", 128, FileActionKind.Add)));
-        Assert.That(result[1], Is.EqualTo(new VersionedFile(2, "c:\\modified", 128, FileActionKind.Add)));
+        Assert.That(result[0], Is.EqualTo(new VersionedFile(1, "c:\\added", "added", 128, FileActionKind.Add)));
+        Assert.That(result[1], Is.EqualTo(new VersionedFile(2, "c:\\modified", "modified", 128, FileActionKind.Add)));
         _fileComparator.Verify(x => x.AreEqual(It.IsAny<byte[]>(), It.IsAny<string>()), Times.Never());
     }
 
@@ -88,7 +88,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 1, Path = "old", Size = 128 }
+            new() { UniqueId = 1, RelativePath = "old", Size = 128 }
         });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new string[] { "c:\\old" });
         _fileSystem.Setup(x => x.GetFileInformation("c:\\old")).Returns(new FileInformation(1, "c:\\old", 128, _createdBinary, _createdBinary));
@@ -112,7 +112,7 @@ public class StatusTest
         var result = _status.GetStatus().ToList();
 
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result[0], Is.EqualTo(new VersionedFile(1, "c:\\added", 128, FileActionKind.Add)));
+        Assert.That(result[0], Is.EqualTo(new VersionedFile(1, "c:\\added", "added", 128, FileActionKind.Add)));
         _fileComparator.Verify(x => x.AreEqual(It.IsAny<byte[]>(), It.IsAny<string>()), Times.Never());
     }
 
@@ -122,7 +122,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 2, Path = "modified", Size = 512 }
+            new() { UniqueId = 2, RelativePath = "modified", Size = 512 }
         });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new string[] { "c:\\modified" });
         _fileSystem.Setup(x => x.GetFileInformation("c:\\modified")).Returns(new FileInformation(2, "c:\\modified", 128, _createdBinary, _createdBinary + 100));
@@ -131,7 +131,7 @@ public class StatusTest
         var result = _status.GetStatus().ToList();
 
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result[0], Is.EqualTo(new VersionedFile(2, "c:\\modified", 128, FileActionKind.Modify)));
+        Assert.That(result[0], Is.EqualTo(new VersionedFile(2, "c:\\modified", "modified", 128, FileActionKind.Modify)));
         _fileComparator.Verify(x => x.AreEqual(It.IsAny<byte[]>(), It.IsAny<string>()), Times.Never());
     }
 
@@ -141,7 +141,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 2, FileId = 111, Path = "modified", Size = 128 }
+            new() { UniqueId = 2, FileId = 111, RelativePath = "modified", Size = 128 }
         });
         _dataRepository.Setup(x => x.GetActualFileContent(111)).Returns(new byte[] { 1, 2, 3 });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new string[] { "c:\\modified" });
@@ -152,7 +152,7 @@ public class StatusTest
         var result = _status.GetStatus().ToList();
 
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result[0], Is.EqualTo(new VersionedFile(2, "c:\\modified", 128, FileActionKind.Modify)));
+        Assert.That(result[0], Is.EqualTo(new VersionedFile(2, "c:\\modified", "modified", 128, FileActionKind.Modify)));
         _fileComparator.Verify(x => x.AreEqual(new byte[] { 1, 2, 3 }, "c:\\modified"), Times.Exactly(1));
     }
 
@@ -162,7 +162,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 2, FileId = 111, Path = "modified", Size = 128 }
+            new() { UniqueId = 2, FileId = 111, RelativePath = "modified", Size = 128 }
         });
         _dataRepository.Setup(x => x.GetActualFileContent(111)).Returns(new byte[] { 1, 2, 3 });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new string[] { "c:\\modified" });
@@ -182,7 +182,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 3, Path = "old_replaced", Size = 128 }
+            new() { UniqueId = 3, RelativePath = "old_replaced", Size = 128 }
         });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new string[] { "c:\\new_replaced" });
         _fileSystem.Setup(x => x.GetFileInformation("c:\\new_replaced")).Returns(new FileInformation(3, "c:\\new_replaced", 128, _createdBinary, _createdBinary));
@@ -191,7 +191,7 @@ public class StatusTest
         var result = _status.GetStatus().ToList();
 
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result[0], Is.EqualTo(new VersionedFile(3, "c:\\new_replaced", 128, FileActionKind.Replace)));
+        Assert.That(result[0], Is.EqualTo(new VersionedFile(3, "c:\\new_replaced", "new_replaced", 128, FileActionKind.Replace)));
         _fileComparator.Verify(x => x.AreEqual(It.IsAny<byte[]>(), It.IsAny<string>()), Times.Never());
     }
 
@@ -201,7 +201,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 4, Path = "old_modifiedReplaced", Size = 512 }
+            new() { UniqueId = 4, RelativePath = "old_modifiedReplaced", Size = 512 }
         });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new string[] { "c:\\new_modifiedReplaced" });
         _fileSystem.Setup(x => x.GetFileInformation("c:\\new_modifiedReplaced")).Returns(new FileInformation(4, "c:\\new_modifiedReplaced", 128, _createdBinary, _createdBinary + 100));
@@ -210,7 +210,7 @@ public class StatusTest
         var result = _status.GetStatus().ToList();
 
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result[0], Is.EqualTo(new VersionedFile(4, "c:\\new_modifiedReplaced", 128, FileActionKind.ModifyAndReplace)));
+        Assert.That(result[0], Is.EqualTo(new VersionedFile(4, "c:\\new_modifiedReplaced", "new_modifiedReplaced", 128, FileActionKind.ModifyAndReplace)));
         _fileComparator.Verify(x => x.AreEqual(It.IsAny<byte[]>(), It.IsAny<string>()), Times.Never());
     }
 
@@ -220,7 +220,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 5, Path = "deleted", Size = 128 }
+            new() { UniqueId = 5, RelativePath = "deleted", Size = 128 }
         });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(Enumerable.Empty<string>());
         _pathResolver.Setup(x => x.RelativePathToFull("deleted")).Returns("c:\\deleted");
@@ -228,7 +228,7 @@ public class StatusTest
         var result = _status.GetStatus().ToList();
 
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result[0], Is.EqualTo(new VersionedFile(5, "c:\\deleted", 0, FileActionKind.Delete)));
+        Assert.That(result[0], Is.EqualTo(new VersionedFile(5, "c:\\deleted", "deleted", 0, FileActionKind.Delete)));
         _fileComparator.Verify(x => x.AreEqual(It.IsAny<byte[]>(), It.IsAny<string>()), Times.Never());
     }
 };
