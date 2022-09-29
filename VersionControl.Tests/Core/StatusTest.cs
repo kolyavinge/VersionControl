@@ -56,6 +56,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(Enumerable.Empty<ActualFileInfoPoco>());
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new string[] { "c:\\projectFile", "c:\\.vc\\fileInRepo" });
         _fileSystem.Setup(x => x.GetFileInformation("c:\\projectFile")).Returns(new FileInformation(1, "c:\\projectFile", 128, 100, 100));
+        _pathResolver.Setup(x => x.FullPathToRelative("c:\\projectFile")).Returns("projectFile");
 
         var result = _status.GetStatus().ToList();
 

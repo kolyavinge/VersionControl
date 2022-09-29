@@ -26,12 +26,13 @@ public class VersionedFile
         return obj is VersionedFile file &&
                UniqueId == file.UniqueId &&
                FullPath == file.FullPath &&
+               RelativePath == file.RelativePath &&
                FileSize == file.FileSize &&
                ActionKind == file.ActionKind;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(UniqueId, FullPath, ActionKind);
+        return HashCode.Combine(UniqueId, FullPath, RelativePath, ActionKind);
     }
 }
