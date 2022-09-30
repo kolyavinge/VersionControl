@@ -5,7 +5,7 @@ namespace VersionControl.Core;
 
 public interface IVersionControlRepository
 {
-    IReadOnlyCollection<VersionedFile> GetStatus();
+    VersionedStatus GetStatus();
     CommitResult MakeCommit(string comment, IReadOnlyCollection<VersionedFile> files);
     IReadOnlyCollection<Commit> FindCommits(FindCommitsFilter filter);
     IReadOnlyCollection<CommitDetail> GetCommitDetail(Commit commit);
@@ -27,7 +27,7 @@ internal class VersionControlRepository : IVersionControlRepository
         _commitFinder = commitFinder;
     }
 
-    public IReadOnlyCollection<VersionedFile> GetStatus()
+    public VersionedStatus GetStatus()
     {
         return _status.GetStatus();
     }

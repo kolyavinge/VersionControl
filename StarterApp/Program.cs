@@ -22,7 +22,7 @@ internal class Program
 
         var repo = VersionControlRepositoryFactory.OpenRepository(_projectPath);
 
-        var versionedFiles = repo.GetStatus();
+        var versionedFiles = repo.GetStatus().Files;
         Console.WriteLine($"versioned files count: {versionedFiles.Count}");
 
         if (makeCommit && versionedFiles.Any())

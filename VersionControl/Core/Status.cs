@@ -7,7 +7,7 @@ namespace VersionControl.Core;
 
 internal interface IStatus
 {
-    IReadOnlyCollection<VersionedFile> GetStatus();
+    VersionedStatus GetStatus();
 }
 
 internal class Status : IStatus
@@ -32,7 +32,7 @@ internal class Status : IStatus
         _fileSystem = fileSystem;
     }
 
-    public IReadOnlyCollection<VersionedFile> GetStatus()
+    public VersionedStatus GetStatus()
     {
         var lastCommit = _dataRepository.GetLastCommit();
         var lastCommitDate = lastCommit?.CreatedUtc.ToFileTimeUtc() ?? 0;
@@ -44,7 +44,7 @@ internal class Status : IStatus
         CheckAddedAndModified(projectFiles, lastCommitDate, actualFilesInfo, result);
         CheckDeleted(projectFiles, actualFilesInfo, result);
 
-        return result;
+        return new VersionedStatus(result);
     }
 
     private void CheckAddedAndModified(
