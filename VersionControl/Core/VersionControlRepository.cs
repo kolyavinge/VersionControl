@@ -3,15 +3,6 @@ using System.Linq;
 
 namespace VersionControl.Core;
 
-public interface IVersionControlRepository
-{
-    VersionedStatus GetStatus();
-    CommitResult MakeCommit(string comment, IReadOnlyCollection<VersionedFile> files);
-    IReadOnlyCollection<Commit> FindCommits(FindCommitsFilter filter);
-    IReadOnlyCollection<CommitDetail> GetCommitDetail(Commit commit);
-    byte[] GetFileContent(CommitDetail commitDetail);
-}
-
 internal class VersionControlRepository : IVersionControlRepository
 {
     private readonly IStatus _status;
