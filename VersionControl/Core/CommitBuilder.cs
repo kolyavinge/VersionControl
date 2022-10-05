@@ -132,26 +132,30 @@ internal class CommitBuilder : ICommitBuilder
 
     private void SaveActualFilesInfo(IReadOnlyCollection<VersionedFile> files, Dictionary<ulong, uint> filesId)
     {
-        var added = files.Where(x => x.ActionKind == FileActionKind.Add).Select(x => new ActualFileInfoPoco
-        {
-            UniqueId = x.UniqueId,
-            FileId = filesId[x.UniqueId],
-            RelativePath = _pathResolver.FullPathToRelative(x.FullPath),
-            Size = x.FileSize
-        }).ToList();
+        var added = files
+            .Where(x => x.ActionKind == FileActionKind.Add)
+            .Select(x => new ActualFileInfoPoco
+            {
+                UniqueId = x.UniqueId,
+                FileId = filesId[x.UniqueId],
+                RelativePath = _pathResolver.FullPathToRelative(x.FullPath),
+                Size = x.FileSize
+            }).ToList();
 
-        var replaced = files.Where(x => x.ActionKind is FileActionKind.Replace or FileActionKind.ModifyAndReplace).Select(x => new ActualFileInfoPoco
-        {
-            UniqueId = x.UniqueId,
-            FileId = filesId[x.UniqueId],
-            RelativePath = _pathResolver.FullPathToRelative(x.FullPath),
-            Size = x.FileSize
-        }).ToList();
+        var updated = files
+            .Where(x => x.ActionKind is FileActionKind.Modify or FileActionKind.Replace or FileActionKind.ModifyAndReplace)
+            .Select(x => new ActualFileInfoPoco
+            {
+                UniqueId = x.UniqueId,
+                FileId = filesId[x.UniqueId],
+                RelativePath = _pathResolver.FullPathToRelative(x.FullPath),
+                Size = x.FileSize
+            }).ToList();
 
         var deleted = files.Where(x => x.ActionKind == FileActionKind.Delete).Select(x => x.UniqueId).ToList();
 
         _dataRepository.SaveActualFileInfo(added);
-        _dataRepository.UpdateActualFileInfo(replaced);
+        _dataRepository.UpdateActualFileInfo(updated);
         _dataRepository.DeleteLastPathFiles(deleted);
     }
 }

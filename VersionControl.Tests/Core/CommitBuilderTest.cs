@@ -160,27 +160,31 @@ internal class CommitBuilderTest
         _dataRepository.Setup(x => x.GetFileByUniqueId(2)).Returns(new FilePoco { Id = 10, UniqueFileId = 2 });
         _dataRepository.Setup(x => x.GetFileByUniqueId(3)).Returns(new FilePoco { Id = 20, UniqueFileId = 3 });
         _dataRepository.Setup(x => x.GetFileByUniqueId(4)).Returns(new FilePoco { Id = 30, UniqueFileId = 4 });
+        _dataRepository.Setup(x => x.GetFileByUniqueId(5)).Returns(new FilePoco { Id = 40, UniqueFileId = 5 });
         _fileSystem.Setup(x => x.ReadFileBytes("c:\\added")).Returns(new byte[0]);
         _pathResolver.Setup(x => x.FullPathToRelative("c:\\added")).Returns("added");
         _pathResolver.Setup(x => x.FullPathToRelative("c:\\replaced")).Returns("replaced");
+        _pathResolver.Setup(x => x.FullPathToRelative("c:\\modify")).Returns("modify");
         _pathResolver.Setup(x => x.FullPathToRelative("c:\\modifyReplaced")).Returns("modifyReplaced");
 
         var result = _commitBuilder.MakeCommit("comment", new[]
         {
             new VersionedFile(1, "c:\\added", "added", 128, FileActionKind.Add),
             new VersionedFile(2, "c:\\replaced", "replaced", 128, FileActionKind.Replace),
-            new VersionedFile(3, "c:\\modifyReplaced", "modifyReplaced", 128, FileActionKind.ModifyAndReplace),
-            new VersionedFile(4, "c:\\deleted", "deleted", 128, FileActionKind.Delete)
+            new VersionedFile(3, "c:\\modify", "modify", 128, FileActionKind.Modify),
+            new VersionedFile(4, "c:\\modifyReplaced", "modifyReplaced", 128, FileActionKind.ModifyAndReplace),
+            new VersionedFile(5, "c:\\deleted", "deleted", 128, FileActionKind.Delete)
         });
 
         var added = new[] { new ActualFileInfoPoco { UniqueId = 1, FileId = 1, RelativePath = "added", Size = 128 } };
         var updated = new[]
         {
             new ActualFileInfoPoco { UniqueId = 2, FileId = 10, RelativePath = "replaced", Size = 128 },
-            new ActualFileInfoPoco { UniqueId = 3, FileId = 20, RelativePath = "modifyReplaced", Size = 128 }
+            new ActualFileInfoPoco { UniqueId = 3, FileId = 20, RelativePath = "modify", Size = 128 },
+            new ActualFileInfoPoco { UniqueId = 4, FileId = 30, RelativePath = "modifyReplaced", Size = 128 }
         };
         _dataRepository.Verify(x => x.SaveActualFileInfo(added), Times.Once());
         _dataRepository.Verify(x => x.UpdateActualFileInfo(updated), Times.Once());
-        _dataRepository.Verify(x => x.DeleteLastPathFiles(new ulong[] { 4 }), Times.Once());
+        _dataRepository.Verify(x => x.DeleteLastPathFiles(new ulong[] { 5 }), Times.Once());
     }
 }
