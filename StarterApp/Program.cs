@@ -42,7 +42,7 @@ internal class Program
         }
 
         var firstCommit = repo.FindCommits(new() { PageIndex = 0, PageSize = 10 }).First();
-        var commitDetail = repo.GetCommitDetail(firstCommit).First();
+        var commitDetail = repo.GetCommitDetails(firstCommit).First();
         var fileContent = repo.GetFileContent(commitDetail);
         var fileText = Encoding.UTF8.GetString(fileContent);
         Console.WriteLine($"file text: {fileText}");

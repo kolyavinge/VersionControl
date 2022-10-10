@@ -21,7 +21,10 @@ internal class CommitFinder : ICommitFinder
     public IReadOnlyCollection<Commit> FindCommits(FindCommitsFilter filter)
     {
         var commitsPoco = _dataRepository.FindCommits(filter);
-        var commits = commitsPoco.Select(x => new Commit(x.Id, x.Author, x.Comment, x.CreatedUtc)).ToList();
+        var commits = commitsPoco
+            .Select(x => new Commit(x.Id, x.Author, x.Comment, x.CreatedUtc))
+            .OrderByDescending(x => x.CreatedUtc)
+            .ToList();
 
         return commits;
     }

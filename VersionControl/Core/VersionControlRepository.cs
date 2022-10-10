@@ -33,7 +33,7 @@ internal class VersionControlRepository : IVersionControlRepository
         return _commitFinder.FindCommits(filter);
     }
 
-    public IReadOnlyCollection<CommitDetail> GetCommitDetail(Commit commit)
+    public IReadOnlyCollection<CommitDetail> GetCommitDetails(Commit commit)
     {
         return _commitDetails.GetCommitDetails(commit.Id).ToList();
     }
