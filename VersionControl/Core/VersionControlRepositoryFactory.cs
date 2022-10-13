@@ -10,7 +10,7 @@ public static class VersionControlRepositoryFactory
         var pathHolder = new PathHolder(projectPath);
         var fileSystem = new FileSystem();
 
-        return fileSystem.IsFolderExist(pathHolder.RepositoryPath);
+        return fileSystem.IsFolderExist(pathHolder.RepositoryPath) && fileSystem.IsFileExist(pathHolder.DBFilePath);
     }
 
     public static IVersionControlRepository OpenRepository(string projectPath)
