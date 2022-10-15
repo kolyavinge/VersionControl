@@ -9,4 +9,5 @@ public interface IVersionControlRepository
     IReadOnlyCollection<Commit> FindCommits(FindCommitsFilter filter);
     IReadOnlyCollection<CommitDetail> GetCommitDetails(Commit commit);
     byte[] GetFileContent(CommitDetail commitDetail);
+    void UndoChanges(IReadOnlyCollection<VersionedFile> files);
 }

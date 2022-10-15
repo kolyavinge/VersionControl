@@ -91,7 +91,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 1, RelativePath = "old", Size = 128 }
+            new() { UniqueFileId = 1, RelativePath = "old", Size = 128 }
         });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new[] { "c:\\old" });
         _fileSystem.Setup(x => x.GetFileInformation("c:\\old")).Returns(new FileInformation(1, "c:\\old", 128, _createdBinary, _createdBinary));
@@ -126,7 +126,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 2, RelativePath = "modified", Size = 512 }
+            new() { UniqueFileId = 2, RelativePath = "modified", Size = 512 }
         });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new[] { "c:\\modified" });
         _fileSystem.Setup(x => x.GetFileInformation("c:\\modified")).Returns(new FileInformation(2, "c:\\modified", 128, _createdBinary, _createdBinary + 100));
@@ -146,7 +146,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 2, FileId = 111, RelativePath = "modified", Size = 128 }
+            new() { UniqueFileId = 2, FileId = 111, RelativePath = "modified", Size = 128 }
         });
         _dataRepository.Setup(x => x.GetActualFileContent(111)).Returns(new byte[] { 1, 2, 3 });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new[] { "c:\\modified" });
@@ -168,7 +168,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 2, FileId = 111, RelativePath = "modified", Size = 128 }
+            new() { UniqueFileId = 2, FileId = 111, RelativePath = "modified", Size = 128 }
         });
         _dataRepository.Setup(x => x.GetActualFileContent(111)).Returns(new byte[] { 1, 2, 3 });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new[] { "c:\\modified" });
@@ -188,7 +188,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 3, RelativePath = "old_replaced", Size = 128 }
+            new() { UniqueFileId = 3, RelativePath = "old_replaced", Size = 128 }
         });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new[] { "c:\\new_replaced" });
         _fileSystem.Setup(x => x.GetFileInformation("c:\\new_replaced")).Returns(new FileInformation(3, "c:\\new_replaced", 128, _createdBinary, _createdBinary));
@@ -208,7 +208,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 4, RelativePath = "old_modifiedReplaced", Size = 512 }
+            new() { UniqueFileId = 4, RelativePath = "old_modifiedReplaced", Size = 512 }
         });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new[] { "c:\\new_modifiedReplaced" });
         _fileSystem.Setup(x => x.GetFileInformation("c:\\new_modifiedReplaced")).Returns(new FileInformation(4, "c:\\new_modifiedReplaced", 128, _createdBinary, _createdBinary + 100));
@@ -228,7 +228,7 @@ public class StatusTest
         _dataRepository.Setup(x => x.GetLastCommit()).Returns(new CommitPoco { CreatedUtc = _created });
         _dataRepository.Setup(x => x.GetActualFileInfo()).Returns(new ActualFileInfoPoco[]
         {
-            new() { UniqueId = 5, RelativePath = "deleted", Size = 128 }
+            new() { UniqueFileId = 5, RelativePath = "deleted", Size = 128 }
         });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(Enumerable.Empty<string>());
         _pathResolver.Setup(x => x.RelativePathToFull("deleted")).Returns("c:\\deleted");

@@ -21,6 +21,7 @@ internal class MainInjectModule : InjectModule
         provider.Bind<ICommitBuilder, CommitBuilder>().ToSingleton();
         provider.Bind<ICommitDetails, CommitDetails>().ToSingleton();
         provider.Bind<ICommitFinder, CommitFinder>().ToSingleton();
+        provider.Bind<IUndoLogic, UndoLogic>().ToSingleton();
         provider.Bind<IVersionControlRepository, VersionControlRepository>().ToSingleton();
     }
 }

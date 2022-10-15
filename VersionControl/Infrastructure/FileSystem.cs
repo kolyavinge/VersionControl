@@ -27,11 +27,14 @@ internal interface IFileSystem
     bool IsFileExist(string filePath);
     byte[] ReadFileBytes(string filePath);
     string ReadFileText(string filePath, Encoding encoding);
+    void WriteFile(string filePath, byte[] content);
     void WriteFileText(string filePath, string content, Encoding encoding);
     FileInformation GetFileInformation(string filePath);
     bool IsFolderExist(string path);
     void CreateHiddenFolderIfNotExist(string path);
     IEnumerable<string> GetFilesRecursively(string path);
+    void MoveFile(string from, string to);
+    void DeleteFile(string path);
 }
 
 internal class FileSystem : IFileSystem
@@ -49,6 +52,11 @@ internal class FileSystem : IFileSystem
     public string ReadFileText(string filePath, Encoding encoding)
     {
         return File.ReadAllText(filePath, encoding);
+    }
+
+    public void WriteFile(string filePath, byte[] content)
+    {
+        File.WriteAllBytes(filePath, content);
     }
 
     public void WriteFileText(string filePath, string content, Encoding encoding)
@@ -93,5 +101,15 @@ internal class FileSystem : IFileSystem
         search(path);
 
         return result;
+    }
+
+    public void MoveFile(string from, string to)
+    {
+        File.Move(from, to);
+    }
+
+    public void DeleteFile(string path)
+    {
+        File.Delete(path);
     }
 }

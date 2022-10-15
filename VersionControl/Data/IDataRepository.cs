@@ -7,13 +7,15 @@ internal interface IDataRepository
 {
     FilePoco GetFileByUniqueId(ulong uniqueFileId);
 
-    void ClearUniqueFileIdFor(uint fileId);
+    void SetUniqueFileIdFor(uint fileId, ulong uniqueFileId);
 
     CommitPoco? GetLastCommit();
 
     IReadOnlyCollection<CommitPoco> FindCommits(FindCommitsFilter filter);
 
     IEnumerable<ActualFileInfoPoco> GetActualFileInfo();
+
+    IReadOnlyCollection<ActualFileInfoPoco> GetActualFileInfoByUniqueId(IReadOnlyCollection<ulong> uniqueFileIdCollection);
 
     uint GetCommitDetailsCount();
 
@@ -43,5 +45,5 @@ internal interface IDataRepository
 
     void UpdateActualFileInfo(IReadOnlyCollection<ActualFileInfoPoco> updated);
 
-    void DeleteLastPathFiles(IEnumerable<ulong> deleted);
+    void DeleteActualFileInfo(IEnumerable<ulong> deleted);
 }

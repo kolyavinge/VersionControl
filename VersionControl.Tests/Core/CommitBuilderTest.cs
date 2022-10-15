@@ -151,7 +151,7 @@ internal class CommitBuilderTest
 
         var result = _commitBuilder.MakeCommit("comment", new[] { new VersionedFile(10, "c:\\deleted", "deleted", 128, FileActionKind.Delete) });
 
-        _dataRepository.Verify(x => x.ClearUniqueFileIdFor(5), Times.Once());
+        _dataRepository.Verify(x => x.SetUniqueFileIdFor(5, 0), Times.Once());
     }
 
     [Test]
@@ -176,15 +176,15 @@ internal class CommitBuilderTest
             new VersionedFile(5, "c:\\deleted", "deleted", 128, FileActionKind.Delete)
         });
 
-        var added = new[] { new ActualFileInfoPoco { UniqueId = 1, FileId = 1, RelativePath = "added", Size = 128 } };
+        var added = new[] { new ActualFileInfoPoco { UniqueFileId = 1, FileId = 1, RelativePath = "added", Size = 128 } };
         var updated = new[]
         {
-            new ActualFileInfoPoco { UniqueId = 2, FileId = 10, RelativePath = "replaced", Size = 128 },
-            new ActualFileInfoPoco { UniqueId = 3, FileId = 20, RelativePath = "modify", Size = 128 },
-            new ActualFileInfoPoco { UniqueId = 4, FileId = 30, RelativePath = "modifyReplaced", Size = 128 }
+            new ActualFileInfoPoco { UniqueFileId = 2, FileId = 10, RelativePath = "replaced", Size = 128 },
+            new ActualFileInfoPoco { UniqueFileId = 3, FileId = 20, RelativePath = "modify", Size = 128 },
+            new ActualFileInfoPoco { UniqueFileId = 4, FileId = 30, RelativePath = "modifyReplaced", Size = 128 }
         };
         _dataRepository.Verify(x => x.SaveActualFileInfo(added), Times.Once());
         _dataRepository.Verify(x => x.UpdateActualFileInfo(updated), Times.Once());
-        _dataRepository.Verify(x => x.DeleteLastPathFiles(new ulong[] { 5 }), Times.Once());
+        _dataRepository.Verify(x => x.DeleteActualFileInfo(new ulong[] { 5 }), Times.Once());
     }
 }

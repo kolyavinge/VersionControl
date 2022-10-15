@@ -24,7 +24,7 @@ internal class DataRepository : IDataRepository
             .Field(3, x => x.CreatedUtc);
 
         builder.Map<ActualFileInfoPoco>()
-            .PrimaryKey(x => x.UniqueId)
+            .PrimaryKey(x => x.UniqueFileId)
             .Field(1, x => x.FileId)
             .Field(2, x => x.RelativePath)
             .Field(3, x => x.Size);
@@ -58,10 +58,9 @@ internal class DataRepository : IDataRepository
             .Where(x => x.UniqueFileId == uniqueFileId).ToList().First();
     }
 
-    public void ClearUniqueFileIdFor(uint fileId)
+    public void SetUniqueFileIdFor(uint fileId, ulong uniqueFileId)
     {
-        _engine.GetCollection<FilePoco>().Query()
-            .Update(x => new() { UniqueFileId = 0 }, x => x.Id == fileId);
+        _engine.GetCollection<FilePoco>().Update(new FilePoco { Id = fileId, UniqueFileId = uniqueFileId });
     }
 
     public CommitPoco? GetLastCommit()
@@ -97,6 +96,13 @@ internal class DataRepository : IDataRepository
     public IEnumerable<ActualFileInfoPoco> GetActualFileInfo()
     {
         return _engine.GetCollection<ActualFileInfoPoco>().GetAll();
+    }
+
+    public IReadOnlyCollection<ActualFileInfoPoco> GetActualFileInfoByUniqueId(IReadOnlyCollection<ulong> uniqueFileIdCollection)
+    {
+        return _engine.GetCollection<ActualFileInfoPoco>().Query()
+            .Where(x => uniqueFileIdCollection.Contains(x.UniqueFileId))
+            .ToList();
     }
 
     public uint GetCommitDetailsCount()
@@ -186,7 +192,7 @@ internal class DataRepository : IDataRepository
         _engine.GetCollection<ActualFileInfoPoco>().UpdateRange(updated);
     }
 
-    public void DeleteLastPathFiles(IEnumerable<ulong> deleted)
+    public void DeleteActualFileInfo(IEnumerable<ulong> deleted)
     {
         _engine.GetCollection<ActualFileInfoPoco>().DeleteRange(deleted.Cast<object>().ToList());
     }

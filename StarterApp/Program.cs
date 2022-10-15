@@ -16,6 +16,7 @@ internal class Program
         bool createManyFiles = true;
         bool makeCommit = true;
         bool findCommits = true;
+        bool undo = true;
 
         if (clearProjectRepository) ClearProjectRepository();
         if (createManyFiles) CreateManyFiles();
@@ -46,6 +47,28 @@ internal class Program
         var fileContent = repo.GetFileContent(commitDetail);
         var fileText = Encoding.UTF8.GetString(fileContent);
         Console.WriteLine($"file text: {fileText}");
+
+        if (undo)
+        {
+            var files = Directory.GetFiles(_projectPath).Take(4).ToList();
+
+            File.WriteAllText(Path.Combine(_projectPath, "new_file_for_undo"), "new_file_for_undo");
+
+            File.WriteAllText(files[0], "modified_file_for_undo");
+
+            File.Move(files[1], files[1] + "_new_path");
+
+            File.WriteAllText(files[2], "modified_and_replaced_file_for_undo");
+            File.Move(files[2], files[2] + "_new_path");
+
+            File.Delete(files[3]);
+
+            var statusForUndo = repo.GetStatus();
+            Console.WriteLine($"files before undo: {statusForUndo.Files.Count}");
+            repo.UndoChanges(statusForUndo.Files);
+            statusForUndo = repo.GetStatus();
+            Console.WriteLine($"files after undo: {statusForUndo.Files.Count}");
+        }
 
         Console.ReadKey();
     }

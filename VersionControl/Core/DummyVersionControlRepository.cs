@@ -19,4 +19,6 @@ public class DummyVersionControlRepository : IVersionControlRepository
     public VersionedStatus GetStatus() => VersionedStatus.Empty;
 
     public CommitResult MakeCommit(string comment, IReadOnlyCollection<VersionedFile> files) => throw new ArgumentException(_errorMessage);
+
+    public void UndoChanges(IReadOnlyCollection<VersionedFile> files) => throw new ArgumentException(_errorMessage);
 }

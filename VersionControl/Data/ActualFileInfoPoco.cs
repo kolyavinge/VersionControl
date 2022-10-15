@@ -2,7 +2,7 @@
 
 internal class ActualFileInfoPoco
 {
-    public ulong UniqueId { get; set; }
+    public ulong UniqueFileId { get; set; }
 
     public uint FileId { get; set; }
 
@@ -13,7 +13,7 @@ internal class ActualFileInfoPoco
     public override bool Equals(object? obj)
     {
         return obj is ActualFileInfoPoco poco &&
-               UniqueId == poco.UniqueId &&
+               UniqueFileId == poco.UniqueFileId &&
                FileId == poco.FileId &&
                RelativePath == poco.RelativePath &&
                Size == poco.Size;
@@ -21,6 +21,6 @@ internal class ActualFileInfoPoco
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(UniqueId, FileId, RelativePath, Size);
+        return HashCode.Combine(UniqueFileId, FileId, RelativePath, Size);
     }
 }

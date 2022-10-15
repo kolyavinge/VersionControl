@@ -118,7 +118,7 @@ internal class CommitBuilder : ICommitBuilder
             }
             else // Delete
             {
-                _dataRepository.ClearUniqueFileIdFor(file.Id);
+                _dataRepository.SetUniqueFileIdFor(file.Id, 0);
             }
 
             id++;
@@ -136,7 +136,7 @@ internal class CommitBuilder : ICommitBuilder
             .Where(x => x.ActionKind == FileActionKind.Add)
             .Select(x => new ActualFileInfoPoco
             {
-                UniqueId = x.UniqueId,
+                UniqueFileId = x.UniqueId,
                 FileId = filesId[x.UniqueId],
                 RelativePath = _pathResolver.FullPathToRelative(x.FullPath),
                 Size = x.FileSize
@@ -146,7 +146,7 @@ internal class CommitBuilder : ICommitBuilder
             .Where(x => x.ActionKind is FileActionKind.Modify or FileActionKind.Replace or FileActionKind.ModifyAndReplace)
             .Select(x => new ActualFileInfoPoco
             {
-                UniqueId = x.UniqueId,
+                UniqueFileId = x.UniqueId,
                 FileId = filesId[x.UniqueId],
                 RelativePath = _pathResolver.FullPathToRelative(x.FullPath),
                 Size = x.FileSize
@@ -156,7 +156,7 @@ internal class CommitBuilder : ICommitBuilder
 
         _dataRepository.SaveActualFileInfo(added);
         _dataRepository.UpdateActualFileInfo(updated);
-        _dataRepository.DeleteLastPathFiles(deleted);
+        _dataRepository.DeleteActualFileInfo(deleted);
     }
 }
 

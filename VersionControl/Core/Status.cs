@@ -36,7 +36,7 @@ internal class Status : IStatus
     {
         var lastCommit = _dataRepository.GetLastCommit();
         var lastCommitDate = lastCommit?.CreatedUtc.ToFileTimeUtc() ?? 0;
-        var actualFilesInfo = _dataRepository.GetActualFileInfo().ToDictionary(k => k.UniqueId, v => v);
+        var actualFilesInfo = _dataRepository.GetActualFileInfo().ToDictionary(k => k.UniqueFileId, v => v);
         var projectFilePathes = _fileSystem.GetFilesRecursively(_pathHolder.ProjectPath).ToList();
         projectFilePathes.RemoveAll(x => x.StartsWith(_pathHolder.RepositoryPath, StringComparison.OrdinalIgnoreCase)); // ignore repository files
         var projectFiles = projectFilePathes.Select(_fileSystem.GetFileInformation).ToList();

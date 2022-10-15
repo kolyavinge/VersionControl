@@ -3,6 +3,8 @@ using System.Linq;
 using VersionControl.Core;
 using VersionControl.Data;
 
+namespace VersionControl.Core;
+
 internal interface ICommitDetails
 {
     IEnumerable<CommitDetail> GetCommitDetails(long commitId);
