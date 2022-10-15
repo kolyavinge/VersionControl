@@ -46,21 +46,15 @@ internal class DataRepository : IDataRepository
             .Field(2, x => x.RelativePath);
 
         builder.Map<FilePoco>()
-            .PrimaryKey(x => x.Id)
-            .Field(1, x => x.UniqueFileId);
+            .PrimaryKey(x => x.Id);
 
         _engine = builder.BuildEngine();
     }
 
-    public FilePoco GetFileByUniqueId(ulong uniqueFileId)
+    public ActualFileInfoPoco GetActualFileByUniqueId(ulong uniqueFileId)
     {
-        return _engine.GetCollection<FilePoco>().Query()
+        return _engine.GetCollection<ActualFileInfoPoco>().Query()
             .Where(x => x.UniqueFileId == uniqueFileId).ToList().First();
-    }
-
-    public void SetUniqueFileIdFor(uint fileId, ulong uniqueFileId)
-    {
-        _engine.GetCollection<FilePoco>().Update(new FilePoco { Id = fileId, UniqueFileId = uniqueFileId });
     }
 
     public CommitPoco? GetLastCommit()

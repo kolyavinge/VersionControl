@@ -63,23 +63,23 @@ internal class CommitBuilder : ICommitBuilder
 
         foreach (var versionedFile in versionedFiles)
         {
-            FilePoco file;
+            uint fileId;
             if (versionedFile.ActionKind == FileActionKind.Add)
             {
-                file = new FilePoco { Id = id, UniqueFileId = versionedFile.UniqueId };
-                newFiles.Add(file);
+                fileId = id;
+                newFiles.Add(new FilePoco { Id = fileId });
             }
             else
             {
-                file = _dataRepository.GetFileByUniqueId(versionedFile.UniqueId); // make index in db
+                fileId = _dataRepository.GetActualFileByUniqueId(versionedFile.UniqueId).FileId; // make index in db
             }
-            filesId.Add(versionedFile.UniqueId, file.Id);
+            filesId.Add(versionedFile.UniqueId, fileId);
 
             commitDetails.Add(new CommitDetailPoco
             {
                 Id = id,
                 CommitId = commitId,
-                FileId = file.Id,
+                FileId = fileId,
                 FileActionKind = (byte)versionedFile.ActionKind,
             });
 
@@ -88,13 +88,13 @@ internal class CommitBuilder : ICommitBuilder
                 fileContents.Add(new FileContentPoco
                 {
                     Id = id,
-                    FileId = file.Id,
+                    FileId = fileId,
                     FileContent = _fileSystem.ReadFileBytes(versionedFile.FullPath)
                 });
                 filePathes.Add(new FilePathPoco
                 {
                     Id = id,
-                    FileId = file.Id,
+                    FileId = fileId,
                     RelativePath = _pathResolver.FullPathToRelative(versionedFile.FullPath)
                 });
             }
@@ -103,7 +103,7 @@ internal class CommitBuilder : ICommitBuilder
                 fileContents.Add(new FileContentPoco
                 {
                     Id = id,
-                    FileId = file.Id,
+                    FileId = fileId,
                     FileContent = _fileSystem.ReadFileBytes(versionedFile.FullPath)
                 });
             }
@@ -112,14 +112,11 @@ internal class CommitBuilder : ICommitBuilder
                 filePathes.Add(new FilePathPoco
                 {
                     Id = id,
-                    FileId = file.Id,
+                    FileId = fileId,
                     RelativePath = _pathResolver.FullPathToRelative(versionedFile.FullPath)
                 });
             }
-            else // Delete
-            {
-                _dataRepository.SetUniqueFileIdFor(file.Id, 0);
-            }
+            // no action for Delete
 
             id++;
         }

@@ -101,7 +101,6 @@ internal class UndoLogicTest
         _undoLogic.UndoChanges(files);
 
         _fileSystem.Verify(x => x.WriteFile("c:\\file", content), Times.Once());
-        _repository.Verify(x => x.SetUniqueFileIdFor(1, 456), Times.Once());
         _repository.Verify(x => x.DeleteActualFileInfo(new ulong[] { 123 }), Times.Once());
         _repository.Verify(x => x.SaveActualFileInfo(new ActualFileInfoPoco[] { new() { FileId = 1, UniqueFileId = 456, RelativePath = "file", Size = 10 } }), Times.Once());
     }

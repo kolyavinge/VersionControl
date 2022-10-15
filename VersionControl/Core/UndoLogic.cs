@@ -72,7 +72,6 @@ internal class UndoLogic : IUndoLogic
             var content = _repository.GetActualFileContent(actualFilesDictionary[file.UniqueId].FileId);
             _fileSystem.WriteFile(file.FullPath, content);
             var info = _fileSystem.GetFileInformation(file.FullPath);
-            _repository.SetUniqueFileIdFor(actualFilesDictionary[file.UniqueId].FileId, info.UniqueId);
             actualFilesDictionary[file.UniqueId].UniqueFileId = info.UniqueId;
         }
         else throw new ArgumentException();

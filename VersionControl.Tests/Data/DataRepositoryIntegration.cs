@@ -27,34 +27,18 @@ internal class DataRepositoryIntegration
     }
 
     [Test]
-    public void GetFileByUniqueId()
+    public void GetActualFileByUniqueId()
     {
-        _dataRepository.SaveFiles(new FilePoco[]
+        _dataRepository.SaveActualFileInfo(new ActualFileInfoPoco[]
         {
-            new() { Id = 1, UniqueFileId = 100 },
-            new() { Id = 2, UniqueFileId = 200 },
-            new() { Id = 3, UniqueFileId = 300 }
+            new() { UniqueFileId = 100, FileId = 1 },
+            new() { UniqueFileId = 200, FileId = 2 },
+            new() { UniqueFileId = 300, FileId = 3 }
         });
 
-        var result = _dataRepository.GetFileByUniqueId(200);
+        var result = _dataRepository.GetActualFileByUniqueId(200);
 
-        Assert.That(result, Is.EqualTo(new FilePoco { Id = 2, UniqueFileId = 200 }));
-    }
-
-    [Test]
-    public void SetUniqueFileIdFor()
-    {
-        _dataRepository.SaveFiles(new FilePoco[]
-        {
-            new() { Id = 1, UniqueFileId = 100 },
-            new() { Id = 2, UniqueFileId = 200 },
-            new() { Id = 3, UniqueFileId = 300 }
-        });
-
-        _dataRepository.SetUniqueFileIdFor(3, 0);
-
-        var result = _dataRepository.GetFileByUniqueId(0);
-        Assert.That(result, Is.EqualTo(new FilePoco { Id = 3, UniqueFileId = 0 }));
+        Assert.That(result, Is.EqualTo(new ActualFileInfoPoco { FileId = 2, UniqueFileId = 200 }));
     }
 
     [Test]
@@ -197,23 +181,6 @@ internal class DataRepositoryIntegration
         var result = _dataRepository.GetActualFileInfo().ToList();
 
         Assert.That(result, Has.Count.EqualTo(0));
-    }
-
-    [Test]
-    public void GetActualFileInfoByUniqueId()
-    {
-        _dataRepository.SaveActualFileInfo(new ActualFileInfoPoco[]
-        {
-            new() { UniqueFileId = 1, RelativePath = "file1" },
-            new() { UniqueFileId = 2, RelativePath = "file2" },
-            new() { UniqueFileId = 3, RelativePath = "file3" },
-        });
-
-        var result = _dataRepository.GetActualFileInfoByUniqueId(new ulong[] { 1, 3 }).ToList();
-
-        Assert.That(result, Has.Count.EqualTo(2));
-        Assert.That(result[0].UniqueFileId, Is.EqualTo(1));
-        Assert.That(result[1].UniqueFileId, Is.EqualTo(3));
     }
 
     [Test]

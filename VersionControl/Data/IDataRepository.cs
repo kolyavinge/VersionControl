@@ -5,9 +5,7 @@ namespace VersionControl.Data;
 
 internal interface IDataRepository
 {
-    FilePoco GetFileByUniqueId(ulong uniqueFileId);
-
-    void SetUniqueFileIdFor(uint fileId, ulong uniqueFileId);
+    ActualFileInfoPoco GetActualFileByUniqueId(ulong uniqueFileId);
 
     CommitPoco? GetLastCommit();
 
