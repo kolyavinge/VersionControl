@@ -66,10 +66,8 @@ internal class CommitBuilderTest
         var result = _commitBuilder.MakeCommit("comment", new[] { new VersionedFile(10, "c:\\added", "added", 128, FileActionKind.Add) });
 
         var commitResult = new CommitPoco { Id = _now.ToFileTimeUtc(), Author = "author", Comment = "comment", CreatedUtc = _now };
-        var fileResult = new FilePoco { Id = 1 };
         Assert.That(result.CommitId, Is.EqualTo(commitResult.Id));
         _dataRepository.Verify(x => x.SaveCommit(commitResult), Times.Once());
-        _dataRepository.Verify(x => x.SaveFiles(new[] { fileResult }), Times.Once());
     }
 
     [Test]
@@ -79,9 +77,7 @@ internal class CommitBuilderTest
 
         var result = _commitBuilder.MakeCommit("comment", new[] { new VersionedFile(10, "c:\\added", "added", 128, FileActionKind.Add) });
 
-        var fileResult = new FilePoco { Id = 8 };
         var commitDetailsResult = new CommitDetailPoco { Id = 8, CommitId = _now.ToFileTimeUtc(), FileId = 8, FileActionKind = (byte)FileActionKind.Add };
-        _dataRepository.Verify(x => x.SaveFiles(new[] { fileResult }), Times.Once());
         _dataRepository.Verify(x => x.SaveCommitDetails(new[] { commitDetailsResult }), Times.Once());
     }
 
@@ -94,11 +90,8 @@ internal class CommitBuilderTest
 
         var result = _commitBuilder.MakeCommit("comment", new[] { new VersionedFile(10, "c:\\added", "added", 128, FileActionKind.Add) });
 
-        var fileResult = new FilePoco { Id = 8 };
         var fileContentResult = new FileContentPoco { Id = 8, FileId = 8, FileContent = new byte[] { 1, 2, 3 } };
         var filePathResult = new FilePathPoco { Id = 8, FileId = 8, RelativePath = "added" };
-        _dataRepository.Verify(x => x.SaveFiles(new[] { fileResult }), Times.Once());
-        _dataRepository.Verify(x => x.SaveFiles(new[] { fileResult }), Times.Once());
         _dataRepository.Verify(x => x.SaveFilePathes(new[] { filePathResult }), Times.Once());
     }
 

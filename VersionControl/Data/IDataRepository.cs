@@ -29,8 +29,6 @@ internal interface IDataRepository
 
     byte[] GetActualFileContent(uint fileId);
 
-    void SaveFiles(IReadOnlyCollection<FilePoco> files);
-
     void SaveCommit(CommitPoco commit);
 
     void SaveCommitDetails(IReadOnlyCollection<CommitDetailPoco> commitDetails);

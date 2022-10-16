@@ -45,9 +45,6 @@ internal class DataRepository : IDataRepository
             .Field(1, x => x.FileId)
             .Field(2, x => x.RelativePath);
 
-        builder.Map<FilePoco>()
-            .PrimaryKey(x => x.Id);
-
         _engine = builder.BuildEngine();
     }
 
@@ -149,11 +146,6 @@ internal class DataRepository : IDataRepository
             .Limit(1)
             .ToList()
             .First().FileContent;
-    }
-
-    public void SaveFiles(IReadOnlyCollection<FilePoco> files)
-    {
-        _engine.GetCollection<FilePoco>().InsertRange(files);
     }
 
     public void SaveCommit(CommitPoco commit)

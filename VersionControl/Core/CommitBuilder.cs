@@ -54,7 +54,6 @@ internal class CommitBuilder : ICommitBuilder
 
     private void SaveCommitDetailsAndActionsPoco(long commitId, IEnumerable<VersionedFile> versionedFiles, Dictionary<ulong, uint> filesId)
     {
-        var newFiles = new List<FilePoco>();
         var commitDetails = new List<CommitDetailPoco>();
         var fileContents = new List<FileContentPoco>();
         var filePathes = new List<FilePathPoco>();
@@ -67,7 +66,6 @@ internal class CommitBuilder : ICommitBuilder
             if (versionedFile.ActionKind == FileActionKind.Add)
             {
                 fileId = id;
-                newFiles.Add(new FilePoco { Id = fileId });
             }
             else
             {
@@ -121,7 +119,6 @@ internal class CommitBuilder : ICommitBuilder
             id++;
         }
 
-        _dataRepository.SaveFiles(newFiles);
         _dataRepository.SaveCommitDetails(commitDetails);
         _dataRepository.SaveFileContents(fileContents);
         _dataRepository.SaveFilePathes(filePathes);
