@@ -15,8 +15,9 @@ internal class Program
         bool clearProjectRepository = true;
         bool createManyFiles = true;
         bool makeCommit = true;
-        bool findCommits = true;
-        bool undo = true;
+        bool showFileContent = true;
+        bool findCommits = false;
+        bool undo = false;
 
         if (clearProjectRepository) ClearProjectRepository();
         if (createManyFiles) CreateManyFiles();
@@ -30,6 +31,22 @@ internal class Program
         {
             var commitResult = repo.MakeCommit("first", versionedFiles);
             Console.WriteLine($"commit id: {commitResult.CommitId}");
+        }
+
+        if (showFileContent)
+        {
+            var fileToModify = Directory.GetFiles(_projectPath).First();
+            File.WriteAllText(fileToModify, "modified_file");
+            versionedFiles = repo.GetStatus().Files;
+            repo.MakeCommit("second", versionedFiles);
+            var secondCommit = repo.FindCommits(new() { PageIndex = 0, PageSize = 10 }).First();
+            var secondCommitDetail = repo.GetCommitDetails(secondCommit).First();
+            var lastFileContent = repo.GetFileContent(secondCommitDetail);
+            var lastFileText = Encoding.UTF8.GetString(lastFileContent);
+            Console.WriteLine($"last file text: {lastFileText}");
+            var beforeFileContent = repo.GetFileContentBefore(secondCommitDetail);
+            var beforeFileText = beforeFileContent != null ? Encoding.UTF8.GetString(beforeFileContent) : null;
+            Console.WriteLine($"before file text: {beforeFileText}");
         }
 
         if (findCommits)

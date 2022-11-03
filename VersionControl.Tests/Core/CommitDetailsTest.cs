@@ -63,14 +63,38 @@ internal class CommitDetailsTest
     }
 
     [Test]
-    public void GetFileContent_GetFileContentFor()
+    public void GetFileContent()
     {
         var content = new byte[] { 1, 2, 3, 4, 5 };
         var fileContent = new FileContentPoco { Id = 1, FileContent = content };
-        _dataRepository.Setup(x => x.GetFileContentFor(111, 5)).Returns(fileContent);
+        _dataRepository.Setup(x => x.GetFileContent(111, 5)).Returns(fileContent);
 
         var result = _commitDetails.GetFileContent(111, 5);
 
         Assert.That(result, Is.EqualTo(content));
+    }
+
+    [Test]
+    public void GetFileContentBefore()
+    {
+        var content = new byte[] { 1, 2, 3, 4, 5 };
+        var fileContent = new FileContentPoco { Id = 1, FileContent = content };
+        _dataRepository.Setup(x => x.GetFileContentBefore(111, 5)).Returns(fileContent);
+
+        var result = _commitDetails.GetFileContentBefore(111, 5);
+
+        Assert.That(result, Is.EqualTo(content));
+    }
+
+    [Test]
+    public void GetFileContentBefore_Null()
+    {
+        var content = new byte[] { 1, 2, 3, 4, 5 };
+        var fileContent = new FileContentPoco { Id = 1, FileContent = content };
+        _dataRepository.Setup(x => x.GetFileContentBefore(111, 5)).Returns((FileContentPoco)null);
+
+        var result = _commitDetails.GetFileContentBefore(111, 5);
+
+        Assert.Null(result);
     }
 }

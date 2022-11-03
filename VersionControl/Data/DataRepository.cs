@@ -128,7 +128,7 @@ internal class DataRepository : IDataRepository
             .First();
     }
 
-    public FileContentPoco GetFileContentFor(uint commitDetailId, uint fileId)
+    public FileContentPoco GetFileContent(uint commitDetailId, uint fileId)
     {
         return _engine.GetCollection<FileContentPoco>().Query()
             .Where(x => x.Id <= commitDetailId && x.FileId == fileId)
@@ -136,6 +136,16 @@ internal class DataRepository : IDataRepository
             .Limit(1)
             .ToList()
             .First();
+    }
+
+    public FileContentPoco? GetFileContentBefore(uint commitDetailId, uint fileId)
+    {
+        return _engine.GetCollection<FileContentPoco>().Query()
+            .Where(x => x.Id < commitDetailId && x.FileId == fileId)
+            .OrderBy(x => x.Id, SortDirection.Desc)
+            .Limit(1)
+            .ToList()
+            .FirstOrDefault();
     }
 
     public byte[] GetActualFileContent(uint fileId)

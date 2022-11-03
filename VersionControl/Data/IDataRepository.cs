@@ -25,7 +25,9 @@ internal interface IDataRepository
 
     FilePathPoco GetFilePathFor(uint commitDetailId, uint fileId);
 
-    FileContentPoco GetFileContentFor(uint commitDetailId, uint fileId);
+    FileContentPoco GetFileContent(uint commitDetailId, uint fileId);
+
+    FileContentPoco? GetFileContentBefore(uint commitDetailId, uint fileId);
 
     byte[] GetActualFileContent(uint fileId);
 

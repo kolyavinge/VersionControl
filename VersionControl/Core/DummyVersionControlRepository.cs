@@ -16,6 +16,8 @@ public class DummyVersionControlRepository : IVersionControlRepository
 
     public byte[] GetFileContent(CommitDetail commitDetail) => throw new ArgumentException(_errorMessage);
 
+    public byte[]? GetFileContentBefore(CommitDetail commitDetail) => throw new ArgumentException(_errorMessage);
+
     public VersionedStatus GetStatus() => VersionedStatus.Empty;
 
     public CommitResult MakeCommit(string comment, IReadOnlyCollection<VersionedFile> files) => throw new ArgumentException(_errorMessage);

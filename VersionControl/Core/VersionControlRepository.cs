@@ -50,6 +50,11 @@ internal class VersionControlRepository : IVersionControlRepository
         return _commitDetails.GetFileContent(commitDetail.Id, commitDetail.FileId);
     }
 
+    public byte[]? GetFileContentBefore(CommitDetail commitDetail)
+    {
+        return _commitDetails.GetFileContentBefore(commitDetail.Id, commitDetail.FileId);
+    }
+
     public void UndoChanges(IReadOnlyCollection<VersionedFile> files)
     {
         _undoLogic.UndoChanges(files);

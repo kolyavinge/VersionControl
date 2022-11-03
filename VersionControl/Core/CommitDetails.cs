@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using VersionControl.Core;
 using VersionControl.Data;
 
 namespace VersionControl.Core;
@@ -10,6 +9,8 @@ internal interface ICommitDetails
     IEnumerable<CommitDetail> GetCommitDetails(long commitId);
 
     byte[] GetFileContent(uint commitDetailId, uint fileId);
+
+    byte[]? GetFileContentBefore(uint commitDetailId, uint fileId);
 }
 
 internal class CommitDetails : ICommitDetails
@@ -55,7 +56,13 @@ internal class CommitDetails : ICommitDetails
 
     public byte[] GetFileContent(uint commitDetailId, uint fileId)
     {
-        var fileContent = _dataRepository.GetFileContentFor(commitDetailId, fileId);
+        var fileContent = _dataRepository.GetFileContent(commitDetailId, fileId);
         return fileContent.FileContent;
+    }
+
+    public byte[]? GetFileContentBefore(uint commitDetailId, uint fileId)
+    {
+        var fileContent = _dataRepository.GetFileContentBefore(commitDetailId, fileId);
+        return fileContent?.FileContent;
     }
 }

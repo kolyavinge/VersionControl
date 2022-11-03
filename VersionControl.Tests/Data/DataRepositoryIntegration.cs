@@ -184,6 +184,23 @@ internal class DataRepositoryIntegration
     }
 
     [Test]
+    public void GetActualFileInfoByUniqueId()
+    {
+        _dataRepository.SaveActualFileInfo(new ActualFileInfoPoco[]
+        {
+            new() { UniqueFileId = 123, RelativePath = "file1" },
+            new() { UniqueFileId = 321, RelativePath = "file2" },
+            new() { UniqueFileId = 456, RelativePath = "file3" },
+        });
+
+        var result = _dataRepository.GetActualFileInfoByUniqueId(new ulong[] { 123, 456 }).ToList();
+
+        Assert.That(result, Has.Count.EqualTo(2));
+        Assert.That(result[0].UniqueFileId, Is.EqualTo(123));
+        Assert.That(result[1].UniqueFileId, Is.EqualTo(456));
+    }
+
+    [Test]
     public void GetCommitDetailsCount()
     {
         _dataRepository.SaveCommitDetails(new CommitDetailPoco[]
@@ -278,7 +295,7 @@ internal class DataRepositoryIntegration
     }
 
     [Test]
-    public void GetFileContentFor_1()
+    public void GetFileContent_1()
     {
         _dataRepository.SaveFileContents(new FileContentPoco[]
         {
@@ -286,14 +303,14 @@ internal class DataRepositoryIntegration
             new() { Id = 456, FileId = 111 }
         });
 
-        var result = _dataRepository.GetFileContentFor(456, 111);
+        var result = _dataRepository.GetFileContent(456, 111);
 
         Assert.That(result, !Is.Null);
         Assert.That(result.Id, Is.EqualTo(456));
     }
 
     [Test]
-    public void GetFileContentFor_2()
+    public void GetFileContent_2()
     {
         _dataRepository.SaveFileContents(new FileContentPoco[]
         {
@@ -302,10 +319,39 @@ internal class DataRepositoryIntegration
             new() { Id = 789, FileId = 111 }
         });
 
-        var result = _dataRepository.GetFileContentFor(789, 111);
+        var result = _dataRepository.GetFileContent(789, 111);
 
         Assert.That(result, !Is.Null);
         Assert.That(result.Id, Is.EqualTo(789));
+    }
+
+    [Test]
+    public void GetFileContentBefore_1()
+    {
+        _dataRepository.SaveFileContents(new FileContentPoco[]
+        {
+            new() { Id = 123, FileId = 111 },
+            new() { Id = 456, FileId = 111 }
+        });
+
+        var result = _dataRepository.GetFileContentBefore(456, 111);
+
+        Assert.That(result, !Is.Null);
+        Assert.That(result.Id, Is.EqualTo(123));
+    }
+
+    [Test]
+    public void GetFileContentBefore_2()
+    {
+        _dataRepository.SaveFileContents(new FileContentPoco[]
+        {
+            new() { Id = 123, FileId = 555 },
+            new() { Id = 456, FileId = 111 }
+        });
+
+        var result = _dataRepository.GetFileContentBefore(456, 111);
+
+        Assert.Null(result);
     }
 
     [Test]
