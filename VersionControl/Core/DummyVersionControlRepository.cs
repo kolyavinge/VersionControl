@@ -14,6 +14,8 @@ public class DummyVersionControlRepository : IVersionControlRepository
 
     public IReadOnlyCollection<CommitDetail> GetCommitDetails(Commit commit) => new List<CommitDetail>();
 
+    public byte[]? GetActualFileContent(VersionedFile file) => throw new ArgumentException(_errorMessage);
+
     public byte[] GetFileContent(CommitDetail commitDetail) => throw new ArgumentException(_errorMessage);
 
     public byte[]? GetFileContentBefore(CommitDetail commitDetail) => throw new ArgumentException(_errorMessage);

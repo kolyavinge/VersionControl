@@ -54,7 +54,7 @@ internal class UndoLogic : IUndoLogic
         }
         else if (file.ActionKind == FileActionKind.Modify)
         {
-            var content = _repository.GetActualFileContent(actualFilesDictionary[file.UniqueId].FileId);
+            var content = _repository.GetActualFileContent(actualFilesDictionary[file.UniqueId].FileId)!.FileContent;
             _fileSystem.WriteFile(file.FullPath, content);
         }
         else if (file.ActionKind == FileActionKind.Replace)
@@ -63,13 +63,13 @@ internal class UndoLogic : IUndoLogic
         }
         else if (file.ActionKind == FileActionKind.ModifyAndReplace)
         {
-            var content = _repository.GetActualFileContent(actualFilesDictionary[file.UniqueId].FileId);
+            var content = _repository.GetActualFileContent(actualFilesDictionary[file.UniqueId].FileId)!.FileContent;
             _fileSystem.WriteFile(file.FullPath, content);
             _fileSystem.MoveFile(file.FullPath, _pathResolver.RelativePathToFull(actualFilesDictionary[file.UniqueId].RelativePath));
         }
         else if (file.ActionKind == FileActionKind.Delete)
         {
-            var content = _repository.GetActualFileContent(actualFilesDictionary[file.UniqueId].FileId);
+            var content = _repository.GetActualFileContent(actualFilesDictionary[file.UniqueId].FileId)!.FileContent;
             _fileSystem.WriteFile(file.FullPath, content);
             var info = _fileSystem.GetFileInformation(file.FullPath);
             actualFilesDictionary[file.UniqueId].UniqueFileId = info.UniqueId;

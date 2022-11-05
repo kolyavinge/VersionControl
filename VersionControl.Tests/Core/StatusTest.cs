@@ -148,7 +148,7 @@ public class StatusTest
         {
             new() { UniqueFileId = 2, FileId = 111, RelativePath = "modified", Size = 128 }
         });
-        _dataRepository.Setup(x => x.GetActualFileContent(111)).Returns(new byte[] { 1, 2, 3 });
+        _dataRepository.Setup(x => x.GetActualFileContent(111)).Returns(new FileContentPoco { FileContent = new byte[] { 1, 2, 3 } });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new[] { "c:\\modified" });
         _fileSystem.Setup(x => x.GetFileInformation("c:\\modified")).Returns(new FileInformation(2, "c:\\modified", 128, _createdBinary, _createdBinary + 100));
         _pathResolver.Setup(x => x.FullPathToRelative("c:\\modified")).Returns("modified");
@@ -170,7 +170,7 @@ public class StatusTest
         {
             new() { UniqueFileId = 2, FileId = 111, RelativePath = "modified", Size = 128 }
         });
-        _dataRepository.Setup(x => x.GetActualFileContent(111)).Returns(new byte[] { 1, 2, 3 });
+        _dataRepository.Setup(x => x.GetActualFileContent(111)).Returns(new FileContentPoco { FileContent = new byte[] { 1, 2, 3 } });
         _fileSystem.Setup(x => x.GetFilesRecursively(_projectPath)).Returns(new[] { "c:\\modified" });
         _fileSystem.Setup(x => x.GetFileInformation("c:\\modified")).Returns(new FileInformation(2, "c:\\modified", 128, _createdBinary, _createdBinary + 100));
         _pathResolver.Setup(x => x.FullPathToRelative("c:\\modified")).Returns("modified");

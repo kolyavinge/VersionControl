@@ -48,12 +48,6 @@ internal class DataRepository : IDataRepository
         _engine = builder.BuildEngine();
     }
 
-    public ActualFileInfoPoco GetActualFileByUniqueId(ulong uniqueFileId)
-    {
-        return _engine.GetCollection<ActualFileInfoPoco>().Query()
-            .Where(x => x.UniqueFileId == uniqueFileId).ToList().First();
-    }
-
     public CommitPoco? GetLastCommit()
     {
         return _engine.GetCollection<CommitPoco>().Query()
@@ -87,6 +81,12 @@ internal class DataRepository : IDataRepository
     public IEnumerable<ActualFileInfoPoco> GetActualFileInfo()
     {
         return _engine.GetCollection<ActualFileInfoPoco>().GetAll();
+    }
+
+    public ActualFileInfoPoco? GetActualFileInfoByUniqueId(ulong uniqueFileId)
+    {
+        return _engine.GetCollection<ActualFileInfoPoco>().Query()
+            .Where(x => x.UniqueFileId == uniqueFileId).ToList().FirstOrDefault();
     }
 
     public IReadOnlyCollection<ActualFileInfoPoco> GetActualFileInfoByUniqueId(IReadOnlyCollection<ulong> uniqueFileIdCollection)
@@ -148,14 +148,14 @@ internal class DataRepository : IDataRepository
             .FirstOrDefault();
     }
 
-    public byte[] GetActualFileContent(uint fileId)
+    public FileContentPoco? GetActualFileContent(uint fileId)
     {
         return _engine.GetCollection<FileContentPoco>().Query()
             .Where(x => x.FileId == fileId)
             .OrderBy(x => x.Id, SortDirection.Desc)
             .Limit(1)
             .ToList()
-            .First().FileContent;
+            .FirstOrDefault();
     }
 
     public void SaveCommit(CommitPoco commit)

@@ -27,21 +27,6 @@ internal class DataRepositoryIntegration
     }
 
     [Test]
-    public void GetActualFileByUniqueId()
-    {
-        _dataRepository.SaveActualFileInfo(new ActualFileInfoPoco[]
-        {
-            new() { UniqueFileId = 100, FileId = 1 },
-            new() { UniqueFileId = 200, FileId = 2 },
-            new() { UniqueFileId = 300, FileId = 3 }
-        });
-
-        var result = _dataRepository.GetActualFileByUniqueId(200);
-
-        Assert.That(result, Is.EqualTo(new ActualFileInfoPoco { FileId = 2, UniqueFileId = 200 }));
-    }
-
-    [Test]
     public void GetLastCommit()
     {
         var result = _dataRepository.GetLastCommit();
@@ -185,6 +170,21 @@ internal class DataRepositoryIntegration
 
     [Test]
     public void GetActualFileInfoByUniqueId()
+    {
+        _dataRepository.SaveActualFileInfo(new ActualFileInfoPoco[]
+        {
+            new() { UniqueFileId = 100, FileId = 1 },
+            new() { UniqueFileId = 200, FileId = 2 },
+            new() { UniqueFileId = 300, FileId = 3 }
+        });
+
+        var result = _dataRepository.GetActualFileInfoByUniqueId(200);
+
+        Assert.That(result, Is.EqualTo(new ActualFileInfoPoco { FileId = 2, UniqueFileId = 200 }));
+    }
+
+    [Test]
+    public void GetActualFileInfoByUniqueId_Collection()
     {
         _dataRepository.SaveActualFileInfo(new ActualFileInfoPoco[]
         {
@@ -366,7 +366,8 @@ internal class DataRepositoryIntegration
 
         var result = _dataRepository.GetActualFileContent(111);
 
-        Assert.That(result, Has.Length.EqualTo(1));
-        Assert.That(result[0], Is.EqualTo(1));
+        Assert.NotNull(result);
+        Assert.That(result.FileContent, Has.Length.EqualTo(1));
+        Assert.That(result.FileContent[0], Is.EqualTo(1));
     }
 }

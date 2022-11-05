@@ -51,12 +51,12 @@ internal class UndoLogicTest
         var files = new VersionedFile[] { new(123, "c:\\file", "file", 10, FileActionKind.Modify) };
         _repository.Setup(x => x.GetActualFileInfoByUniqueId(new ulong[] { 123 }))
             .Returns(new ActualFileInfoPoco[] { new() { FileId = 1, UniqueFileId = 123 } });
-        var content = new byte[] { 1, 2, 3 };
+        var content = new FileContentPoco { FileContent = new byte[] { 1, 2, 3 } };
         _repository.Setup(x => x.GetActualFileContent(1)).Returns(content);
 
         _undoLogic.UndoChanges(files);
 
-        _fileSystem.Verify(x => x.WriteFile("c:\\file", content), Times.Once());
+        _fileSystem.Verify(x => x.WriteFile("c:\\file", content.FileContent), Times.Once());
     }
 
     [Test]
@@ -78,13 +78,13 @@ internal class UndoLogicTest
         var files = new VersionedFile[] { new(123, "c:\\new\\path", "new\\path", 10, FileActionKind.ModifyAndReplace) };
         _repository.Setup(x => x.GetActualFileInfoByUniqueId(new ulong[] { 123 }))
             .Returns(new ActualFileInfoPoco[] { new() { FileId = 1, UniqueFileId = 123, RelativePath = "old\\path" } });
-        var content = new byte[] { 1, 2, 3 };
+        var content = new FileContentPoco { FileContent = new byte[] { 1, 2, 3 } };
         _repository.Setup(x => x.GetActualFileContent(1)).Returns(content);
         _pathResolver.Setup(x => x.RelativePathToFull("old\\path")).Returns("c:\\old\\path");
 
         _undoLogic.UndoChanges(files);
 
-        _fileSystem.Verify(x => x.WriteFile("c:\\new\\path", content), Times.Once());
+        _fileSystem.Verify(x => x.WriteFile("c:\\new\\path", content.FileContent), Times.Once());
         _fileSystem.Verify(x => x.MoveFile("c:\\new\\path", "c:\\old\\path"), Times.Once());
     }
 
@@ -94,13 +94,13 @@ internal class UndoLogicTest
         var files = new VersionedFile[] { new(123, "c:\\file", "file", 10, FileActionKind.Delete) };
         _repository.Setup(x => x.GetActualFileInfoByUniqueId(new ulong[] { 123 }))
             .Returns(new ActualFileInfoPoco[] { new() { FileId = 1, UniqueFileId = 123, RelativePath = "file", Size = 10 } });
-        var content = new byte[] { 1, 2, 3 };
+        var content = new FileContentPoco { FileContent = new byte[] { 1, 2, 3 } };
         _repository.Setup(x => x.GetActualFileContent(1)).Returns(content);
         _fileSystem.Setup(x => x.GetFileInformation("c:\\file")).Returns(new FileInformation(456, "c:\\file", 10, 0, 0));
 
         _undoLogic.UndoChanges(files);
 
-        _fileSystem.Verify(x => x.WriteFile("c:\\file", content), Times.Once());
+        _fileSystem.Verify(x => x.WriteFile("c:\\file", content.FileContent), Times.Once());
         _repository.Verify(x => x.DeleteActualFileInfo(new ulong[] { 123 }), Times.Once());
         _repository.Verify(x => x.SaveActualFileInfo(new ActualFileInfoPoco[] { new() { FileId = 1, UniqueFileId = 456, RelativePath = "file", Size = 10 } }), Times.Once());
     }

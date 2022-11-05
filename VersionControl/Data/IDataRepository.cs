@@ -5,13 +5,13 @@ namespace VersionControl.Data;
 
 internal interface IDataRepository
 {
-    ActualFileInfoPoco GetActualFileByUniqueId(ulong uniqueFileId);
-
     CommitPoco? GetLastCommit();
 
     IReadOnlyCollection<CommitPoco> FindCommits(FindCommitsFilter filter);
 
     IEnumerable<ActualFileInfoPoco> GetActualFileInfo();
+
+    ActualFileInfoPoco? GetActualFileInfoByUniqueId(ulong uniqueFileId);
 
     IReadOnlyCollection<ActualFileInfoPoco> GetActualFileInfoByUniqueId(IReadOnlyCollection<ulong> uniqueFileIdCollection);
 
@@ -29,7 +29,7 @@ internal interface IDataRepository
 
     FileContentPoco? GetFileContentBefore(uint commitDetailId, uint fileId);
 
-    byte[] GetActualFileContent(uint fileId);
+    FileContentPoco? GetActualFileContent(uint fileId);
 
     void SaveCommit(CommitPoco commit);
 

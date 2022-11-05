@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using VersionControl.Data;
 
 namespace VersionControl.Core;
 
 internal class VersionControlRepository : IVersionControlRepository
 {
+    private readonly IDataRepository _dataRepository;
     private readonly IStatus _status;
     private readonly ICommitBuilder _commitBuilder;
     private readonly ICommitDetails _commitDetails;
@@ -12,12 +14,14 @@ internal class VersionControlRepository : IVersionControlRepository
     private readonly IUndoLogic _undoLogic;
 
     public VersionControlRepository(
+        IDataRepository dataRepository,
         IStatus status,
         ICommitBuilder commitBuilder,
         ICommitDetails commitDetails,
         ICommitFinder commitFinder,
         IUndoLogic undoLogic)
     {
+        _dataRepository = dataRepository;
         _status = status;
         _commitBuilder = commitBuilder;
         _commitDetails = commitDetails;
@@ -43,6 +47,13 @@ internal class VersionControlRepository : IVersionControlRepository
     public IReadOnlyCollection<CommitDetail> GetCommitDetails(Commit commit)
     {
         return _commitDetails.GetCommitDetails(commit.Id).ToList();
+    }
+
+    public byte[]? GetActualFileContent(VersionedFile file)
+    {
+        var actualFile = _dataRepository.GetActualFileInfoByUniqueId(file.UniqueId);
+        if (actualFile == null) return null;
+        return _dataRepository.GetActualFileContent(actualFile.FileId)?.FileContent;
     }
 
     public byte[] GetFileContent(CommitDetail commitDetail)

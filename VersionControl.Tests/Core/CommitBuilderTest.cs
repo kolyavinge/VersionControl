@@ -99,7 +99,7 @@ internal class CommitBuilderTest
     public void MakeCommit_ModifyFile()
     {
         _dataRepository.Setup(x => x.GetCommitDetailsCount()).Returns(7);
-        _dataRepository.Setup(x => x.GetActualFileByUniqueId(10)).Returns(new ActualFileInfoPoco { FileId = 5, UniqueFileId = 10 });
+        _dataRepository.Setup(x => x.GetActualFileInfoByUniqueId(10)).Returns(new ActualFileInfoPoco { FileId = 5, UniqueFileId = 10 });
         _fileSystem.Setup(x => x.ReadFileBytes("c:\\modify")).Returns(new byte[] { 1, 2, 3 });
 
         var result = _commitBuilder.MakeCommit("comment", new[] { new VersionedFile(10, "c:\\modify", "modify", 128, FileActionKind.Modify) });
@@ -112,7 +112,7 @@ internal class CommitBuilderTest
     public void MakeCommit_ReplaceFile()
     {
         _dataRepository.Setup(x => x.GetCommitDetailsCount()).Returns(7);
-        _dataRepository.Setup(x => x.GetActualFileByUniqueId(10)).Returns(new ActualFileInfoPoco { FileId = 5, UniqueFileId = 10 });
+        _dataRepository.Setup(x => x.GetActualFileInfoByUniqueId(10)).Returns(new ActualFileInfoPoco { FileId = 5, UniqueFileId = 10 });
         _pathResolver.Setup(x => x.FullPathToRelative("c:\\replaced")).Returns("replaced");
 
         var result = _commitBuilder.MakeCommit("comment", new[] { new VersionedFile(10, "c:\\replaced", "replaced", 128, FileActionKind.Replace) });
@@ -125,7 +125,7 @@ internal class CommitBuilderTest
     public void MakeCommit_ModifyAndReplaceFile()
     {
         _dataRepository.Setup(x => x.GetCommitDetailsCount()).Returns(7);
-        _dataRepository.Setup(x => x.GetActualFileByUniqueId(10)).Returns(new ActualFileInfoPoco { FileId = 5, UniqueFileId = 10 });
+        _dataRepository.Setup(x => x.GetActualFileInfoByUniqueId(10)).Returns(new ActualFileInfoPoco { FileId = 5, UniqueFileId = 10 });
         _fileSystem.Setup(x => x.ReadFileBytes("c:\\modifyReplace")).Returns(new byte[] { 1, 2, 3 });
         _pathResolver.Setup(x => x.FullPathToRelative("c:\\modifyReplace")).Returns("modifyReplace");
 
@@ -140,10 +140,10 @@ internal class CommitBuilderTest
     [Test]
     public void MakeCommit_SaveActualFileInfo()
     {
-        _dataRepository.Setup(x => x.GetActualFileByUniqueId(2)).Returns(new ActualFileInfoPoco { FileId = 10, UniqueFileId = 2 });
-        _dataRepository.Setup(x => x.GetActualFileByUniqueId(3)).Returns(new ActualFileInfoPoco { FileId = 20, UniqueFileId = 3 });
-        _dataRepository.Setup(x => x.GetActualFileByUniqueId(4)).Returns(new ActualFileInfoPoco { FileId = 30, UniqueFileId = 4 });
-        _dataRepository.Setup(x => x.GetActualFileByUniqueId(5)).Returns(new ActualFileInfoPoco { FileId = 40, UniqueFileId = 5 });
+        _dataRepository.Setup(x => x.GetActualFileInfoByUniqueId(2)).Returns(new ActualFileInfoPoco { FileId = 10, UniqueFileId = 2 });
+        _dataRepository.Setup(x => x.GetActualFileInfoByUniqueId(3)).Returns(new ActualFileInfoPoco { FileId = 20, UniqueFileId = 3 });
+        _dataRepository.Setup(x => x.GetActualFileInfoByUniqueId(4)).Returns(new ActualFileInfoPoco { FileId = 30, UniqueFileId = 4 });
+        _dataRepository.Setup(x => x.GetActualFileInfoByUniqueId(5)).Returns(new ActualFileInfoPoco { FileId = 40, UniqueFileId = 5 });
         _fileSystem.Setup(x => x.ReadFileBytes("c:\\added")).Returns(new byte[0]);
         _pathResolver.Setup(x => x.FullPathToRelative("c:\\added")).Returns("added");
         _pathResolver.Setup(x => x.FullPathToRelative("c:\\replaced")).Returns("replaced");

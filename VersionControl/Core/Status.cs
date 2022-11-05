@@ -90,7 +90,7 @@ internal class Status : IStatus
 
     private bool AreFilesEqual(FileInformation projectFile, ActualFileInfoPoco actualFileInfo)
     {
-        var actualFileContent = _dataRepository.GetActualFileContent(actualFileInfo.FileId);
+        var actualFileContent = _dataRepository.GetActualFileContent(actualFileInfo.FileId)!.FileContent;
         return _fileComparator.AreEqual(actualFileContent, projectFile.Path);
     }
 

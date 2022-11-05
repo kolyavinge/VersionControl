@@ -69,7 +69,7 @@ internal class CommitBuilder : ICommitBuilder
             }
             else
             {
-                fileId = _dataRepository.GetActualFileByUniqueId(versionedFile.UniqueId).FileId; // make index in db
+                fileId = _dataRepository.GetActualFileInfoByUniqueId(versionedFile.UniqueId)!.FileId; // make index in db
             }
             filesId.Add(versionedFile.UniqueId, fileId);
 
