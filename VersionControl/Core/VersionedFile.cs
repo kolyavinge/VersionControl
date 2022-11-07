@@ -12,7 +12,7 @@ public class VersionedFile
 
     public FileActionKind ActionKind { get; }
 
-    internal VersionedFile(ulong uniqueId, string fullPath, string relativePath, ulong fileSize, FileActionKind actionKind)
+    public VersionedFile(ulong uniqueId, string fullPath, string relativePath, ulong fileSize, FileActionKind actionKind)
     {
         UniqueId = uniqueId;
         FullPath = fullPath;

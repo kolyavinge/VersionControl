@@ -9,7 +9,7 @@ public class VersionedStatus
 
     public IReadOnlyCollection<VersionedFile> Files { get; }
 
-    internal VersionedStatus(IReadOnlyCollection<VersionedFile> files)
+    public VersionedStatus(IReadOnlyCollection<VersionedFile> files)
     {
         Files = files;
     }

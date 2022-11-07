@@ -10,7 +10,7 @@ public class Commit
 
     public DateTime CreatedUtc { get; }
 
-    internal Commit(long id, string author, string comment, DateTime createdUtc)
+    public Commit(long id, string author, string comment, DateTime createdUtc)
     {
         Id = id;
         Author = author;
@@ -43,7 +43,7 @@ public class CommitDetail
 
     public string RelativePath { get; } = "";
 
-    internal CommitDetail(uint id, FileActionKind fileActionKind, uint fileId, string relativePath)
+    public CommitDetail(uint id, FileActionKind fileActionKind, uint fileId, string relativePath)
     {
         Id = id;
         FileActionKind = fileActionKind;

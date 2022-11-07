@@ -158,7 +158,7 @@ public readonly struct CommitResult
 {
     public readonly long CommitId;
 
-    internal CommitResult(long commitId)
+    public CommitResult(long commitId)
     {
         CommitId = commitId;
     }
